@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block content %}
+    <div class="container mt-4">
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}  <!--for protection-->
+            <div class="form-group">
+                <h3 class="border-bottom mb-4 text-center">Reset Password </h3>
+                <div class="form-group">
+                    {{ form.email.label(class="form-control-label") }}  <!-- bootstrap classes -->
+                    {% if form.email.errors %}
+                        <h1>form.email.errors</h1>
+                        {{ form.email(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.email.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.email(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.submit(class="form-control-label btn btn-primary") }}  <!-- bootstrap classes -->
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock content %}

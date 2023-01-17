@@ -1,0 +1,39 @@
+{% extends "layout.html" %}
+{% block content %}
+    <form method="POST" action="">
+            {{ form.hidden_tag() }}  <!--for protection-->
+            <div class="form-group">
+                <h3 class="border-bottom mb-4 text-center">{{ legend }}</h3>
+                <div class="form-group">
+                    {{ form.title.label(class="form-control-label") }}  <!-- bootstrap classes -->
+                    {% if form.title.errors %}
+                        <h1>form.title.errors</h1>
+                        {{ form.title(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.title.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        {{ form.title(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.content.label(class="form-control-label") }}  <!-- bootstrap classes -->
+                    {% if form.content.errors %}
+                        {{ form.content(class="form-control form-control-lg is-invalid") }}
+                        <div class="invalid-feedback">
+                            {% for error in form.content.errors %}
+                                <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                       {{ form.content(class="form-control form-control-lg") }}
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.submit(class="form-control-label btn btn-primary") }}  <!-- bootstrap classes -->
+                </div>
+            </div>
+        </form>
+{% endblock content %}
