@@ -22,5 +22,6 @@ urlpatterns = [
     path('student_list/', views.StudentList.as_view()),
     path('student_list_new/', views.StudentListNew.as_view()),
     path('student_list_search/', views.StudentListSearch.as_view()),
+    path('student_list_order/', views.StudentListOrder.as_view()),
     path('api/', include('rest_framework.urls')),
 ]

@@ -3,6 +3,7 @@ from .models import Student
 from .serializers import StudentSerializer
 from rest_framework.generics import ListAPIView
 from rest_framework.filters import SearchFilter
+from rest_framework.filters import OrderingFilter
 
 # Create your views here.
 '''
@@ -103,3 +104,26 @@ class StudentListSearch(ListAPIView):
     serializer_class = StudentSerializer
     filter_backends = [SearchFilter]
     search_fields = ['roll']  # multiple values can also be passed
+
+
+# ordering filter
+'''
+allows to filter records in ascending or descending order based on field passed
+if field is not passed then we get option for available fields
+
+to do this, import
+
+from rest_framework.filters import OrderingFilter
+
+then in url we can pass as
+
+http://127.0.0.1:8000/student_list_new/?ordering=name (ascending a to z)
+http://127.0.0.1:8000/student_list_new/?ordering=-name (descending z to a)
+
+'''
+class StudentListOrder(ListAPIView):
+    # only need to give following two lines
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+    filter_backends = [OrderingFilter]
+    # ordering_fields = ['roll'] # can be passed or not
