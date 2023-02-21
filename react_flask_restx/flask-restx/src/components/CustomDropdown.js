@@ -55,19 +55,24 @@ export default function CustomDropdown() {
 
 
     return (
-        <div className=" container form-group mt-5">
+        <div className=" container form-group mt-5 border border-success p-5">
             <h2>Customer Sale Report - Yearwise</h2>
-            <select
-                className="form-control"
-                onChange={e => selectHandler(e)}
-            >
-                <option defaultValue>Select</option>
-                {dropdata.map((item, index) => (
-                    <option key={index} value={item}>
-                        {item}
-                    </option>
-                ))}
-            </select>
+            <div className="row">
+                <div className="col-md-2"> <strong>Customer</strong> </div>
+                <div className="col-md-10">
+                    <select
+                        className="form-control"
+                        onChange={e => selectHandler(e)}
+                    >
+                        <option defaultValue>Select</option>
+                        {dropdata.map((item, index) => (
+                            <option key={index} value={item}>
+                                {item}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            </div>
             {salesData.length > 0 ? (<BarCharSales chartData={chartData} name={name} />) : 'No data to display!!'}
             {/* <BarCharSales chartData={chartData}/> */}
         </div>
