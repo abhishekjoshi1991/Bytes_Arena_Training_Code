@@ -31,6 +31,10 @@ ChartJS.register(
 
 const line_options = {
   responsive: true,
+  interaction: {
+    mode: 'index',
+    intersect: false
+  },
   plugins: {
     legend: {
       position: 'top',
@@ -315,22 +319,22 @@ export default function MultiStrikeOIChart() {
                 onChange={handleGreenRed}
               />
             </div> : ''} */}
-          
+
           <div style={{ width: '100px' }} className="col-md-1">
             <Toggle arial-label="Switch" size="lg" checkedChildren="OI" unCheckedChildren="OICHG" onChange={toggleHandle} defaultChecked />
           </div>
 
-          {(checkedCumulativeExpiry === true || checkedCumulativeStrike === true) ? 
-          <div className='col-md-2' style={{ width: '150px' }}>
-            <div>
-              <input type="radio" name="color" value="redgreen" id="redgreen" onChange={handleRedGreen}/>
-              <label htmlFor="redgreen"><label style={{ color: 'red' }}>&nbsp;Call,</label> <label style={{ color: 'green' }}>Put</label></label>
-            </div>
-            <div>
-              <input type="radio" name="color" value="greenred" id="greenred" onChange={handleGreenRed}/>
-              <label htmlFor="greenred"><label style={{ color: 'green' }}>&nbsp;Call,</label> <label style={{ color: 'red' }}>Put</label></label>
-            </div>
-          </div> : ''}
+          {(checkedCumulativeExpiry === true || checkedCumulativeStrike === true) ?
+            <div className='col-md-2' style={{ width: '150px' }}>
+              <div>
+                <input type="radio" name="color" value="redgreen" id="redgreen" onChange={handleRedGreen} />
+                <label htmlFor="redgreen"><label style={{ color: 'red' }}>&nbsp;Call,</label> <label style={{ color: 'green' }}>Put</label></label>
+              </div>
+              <div>
+                <input type="radio" name="color" value="greenred" id="greenred" onChange={handleGreenRed} />
+                <label htmlFor="greenred"><label style={{ color: 'green' }}>&nbsp;Call,</label> <label style={{ color: 'red' }}>Put</label></label>
+              </div>
+            </div> : ''}
           <div className="col-md-1"><button className="btn btn-info" type="submit">Submit</button></div>
         </div>
       </form>
