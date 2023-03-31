@@ -4,16 +4,16 @@ import Add from '@mui/icons-material/Add';
 import Remove from '@mui/icons-material/Remove';
 
 export default function StrategyCounter(props) {
-    const [count, setCount] = useState(0);
+    const [count, setCount] = useState(1);
     const IncNum = () => {
         setCount(count + 1);
     };
     const DecNum = () => {
-        if (count > 0) {
+        if (count > 1) {
             setCount(count - 1);
         }
         else {
-            setCount(0);
+            setCount(1);
         }
     };
 

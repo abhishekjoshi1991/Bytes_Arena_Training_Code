@@ -9,8 +9,9 @@ import React, { useEffect, useState } from 'react'
 //     Tooltip,
 //     Legend,
 // } from 'chart.js';
-import 'chart.js/auto'; 
+import 'chart.js/auto';
 import CoPoBarChartGraph from './CoPoBarChartGraph';
+import { flushSync } from 'react-dom';
 
 // ChartJS.register(
 //     CategoryScale,
@@ -41,6 +42,8 @@ export default function CoPoBarChart() {
     const [labelData, setLabelData] = useState([])
     const [dataset, setDataSet] = useState([])
 
+    const [inputData, setInputData] = useState([])
+
     async function api_call() {
         const res = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/co_po_chart')
 
@@ -66,6 +69,46 @@ export default function CoPoBarChart() {
             expiry: formJson['expiry'],
             symbol: formJson['symbol']
         }
+
+        let expiry, symbol = data
+        // console.log(',,,,,,,,',data)
+        // console.log(symbol)
+        // flushSync(() => {
+        //     setInputData([...inputData, data])
+        // })
+        setInputData([...inputData, data])
+        // console.log(document.querySelector('#demo').innerHTML);
+        // setInputData([...inputData, inputData.concat(data)])
+        // inputData.concat(data)
+
+        // console.log(inputData)
+        // const res1 = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/co_po_chart', {
+        //     method: 'POST',
+        //     headers: {
+        //         'Content-Type': 'application/json'
+        //     },
+        //     body: JSON.stringify(data)
+        // })
+
+        // const api_result = await res1.json()
+        // if (api_result) {
+        //     setLabelData(api_result['strike_price'])
+        //     setDataSet(api_result['dataset'])
+        // }
+    }
+
+    useEffect(() => {
+        console.log(inputData.length)
+        if (inputData.length > 0) {
+            console.log(',,,,,', inputData)
+            call_api(inputData)
+        }
+    }, [inputData])
+    // console.log(inputData)
+
+    async function call_api(data) {
+        console.log('api is calleddddd ')
+        console.log('%%%%%%%%%%', data)
         const res1 = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/co_po_chart', {
             method: 'POST',
             headers: {
@@ -79,16 +122,18 @@ export default function CoPoBarChart() {
             setLabelData(api_result['strike_price'])
             setDataSet(api_result['dataset'])
         }
+
     }
 
     const lineData =
-        {
-            labels: labelData,
-            datasets: dataset
-        }
+    {
+        labels: labelData,
+        datasets: dataset
+    }
 
     return (
         <div className="mt-5">
+            {/* <span id='demo'>{inputData} </span> */}
             {/* <h2>CO PO Chart</h2> */}
             <form method="post" onSubmit={selectHandler}>
                 <div className="row mb-5">
@@ -121,10 +166,10 @@ export default function CoPoBarChart() {
                     <div className="col-md-2"><button className="btn btn-info" type="submit">Submit</button></div>
                 </div>
 
-                
+
             </form>
 
-            <CoPoBarChartGraph chartData={lineData}/>
+            <CoPoBarChartGraph chartData={lineData} />
         </div>
     )
 }
