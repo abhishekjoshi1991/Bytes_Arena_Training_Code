@@ -81,11 +81,34 @@ export default function Strategy() {
     // const [dataValue, setDataValue] = useState('')
 
     async function api_call() {
-        const res = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/strategy_planner')
+        const req_expiry = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/strategy_planner')
 
-        const result = await res.json()
-        if (result) {
-            setExpiryDateData(result)
+        const res_expiry = await req_expiry.json()
+        if (res_expiry) {
+            setExpiryDateData(res_expiry)
+        }
+
+        const req_table_display = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/position')
+        const res_table_display = await req_table_display.json()
+        console.log('*******', res_table_display)
+        if (res_table_display){
+            setTableProps(res_table_display)
+
+            const prepared_data = {'data': res_table_display}
+            const req_graph = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/expiry-spot', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(prepared_data)
+            })
+
+            const res_graph = await req_graph.json()
+            console.log(']]]]]]]]]]]]]]',res_graph)
+            if (res_graph) {
+                setDataSet(res_graph['dataset'])
+            }
+
         }
 
     }
@@ -136,7 +159,6 @@ export default function Strategy() {
         }
     }
 
-
     async function handleSubmit() {
         const data = {
             'index': index,
@@ -145,36 +167,17 @@ export default function Strategy() {
             'strike': optionStrike,
             'option_type': optionType,
             'action': radioValue,
-            'qty': count,
+            'quantity': count,
             'entry_price': entryValue
         }
         setInputData([...inputData, data])
         setTableData([data])
-        // console.log(data)
-        // const data2 = { 'data': [data] }
-
-        // const res2 = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/expiry-spot', {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json'
-        //     },
-        //     body: JSON.stringify(data2)
-        // })
-
-        // const api_result_new = await res2.json()
-        // if (api_result_new) {
-        //     setDataSet(api_result_new['dataset'])
-        // }
-
     }
 
     useEffect(() => {
-        console.log('==========', inputData)
         if (inputData.length > 0) {
             call_api(inputData)
         }
-        console.log('++++++++++', tableData)
-        console.log('++++++++++len', tableData.length)
         if (tableData.length > 0) {
             position_table_api(tableData)
         }
@@ -190,14 +193,11 @@ export default function Strategy() {
             body: JSON.stringify(data)
         })
         
-
         const table_api_result = await api_response.json()
-        console.log(']]]]]]',table_api_result)
         if (table_api_result === 'success') {
             const get_table_data = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/position')
 
             const table_data = await get_table_data.json()
-            console.log(table_data)
             if (table_data) {
                 setTableProps(table_data)
             }

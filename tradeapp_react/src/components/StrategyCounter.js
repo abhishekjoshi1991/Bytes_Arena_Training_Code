@@ -24,7 +24,7 @@ export default function StrategyCounter(props) {
     return (
         <div>
             <span className='mx-2'>Lot Qty.</span>
-            <Button variant="outlined" onClick={DecNum}><Remove /></Button>
+            <Button disabled={count===1} variant="outlined" onClick={DecNum}><Remove /></Button>
             <label className='mx-3'>{count}</label>
             <Button variant="outlined" onClick={IncNum}><Add /></Button>
         </div>

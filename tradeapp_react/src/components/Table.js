@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from 'react'
+// import React, { useState, useEffect } from 'react'
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Edit from "@mui/icons-material/Edit";
+import Close from "@mui/icons-material/Close";
+import { useNavigate } from 'react-router-dom';
+
 
 export default function Table1(props) {
+    // console.log('=====================________',props.position.length)
     // const [positionData, setPositionData] = useState([])
     // async function get_position_data() {
     //     const res = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/position')
@@ -22,19 +25,31 @@ export default function Table1(props) {
     // useEffect(() => {
     //     get_position_data();
     // }, [])
+
     const data1 = props.position
+    const navigate = useNavigate();
+
 
     const editHandle = (e) => {
         // console.log(e.target.value)
-        console.log(e.currentTarget.getAttribute("data-id"));
-        console.log(e.currentTarget.getAttribute("data-exp"));
+        // console.log(e.currentTarget.getAttribute("data-id"));
+        // console.log(e.currentTarget.getAttribute("data-exp"));
     }
 
-    // const rows = [
-    //     { id: 1, name: "abhi", fat: 100 },
-    //     { id: 2, name: "abhi", fat: 100 },
-    //     { id: 3, name: "abhi", fat: 100 }
-    // ];
+    async function closeHandle(e) {
+        // console.log(e.target.value)
+        console.log(e.currentTarget.getAttribute("data-id"))
+        const data = e.currentTarget.getAttribute("data-id")
+        const req_graph = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/position', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+        navigate(0)
+    }
+    
     return (
         <TableContainer component={Paper}>
             <Table sx={{ minWidth: 50 }} size="small" aria-label="a dense table">
@@ -49,11 +64,12 @@ export default function Table1(props) {
                                 {row.name}
                             </TableCell>
                             <TableCell sx={{ width: 5 }} size="small" align="left">+{row.quantity}x</TableCell>
-                            <TableCell sx={{ width: 100, padding: 0, margin: 0 }} size="small" align="left">{row.expiry_date}</TableCell>
-                            <TableCell sx={{ width: 100, padding: 0, margin: 0 }} size="small" align="left">{row.strike_price}{row.option_type}</TableCell>
+                            <TableCell sx={{ width: 100, padding: 0, margin: 0 }} size="small" align="left">{row.expiry}</TableCell>
+                            <TableCell sx={{ width: 100, padding: 0, margin: 0 }} size="small" align="left">{row.strike}{row.option_type}</TableCell>
                             <TableCell size="small" align="left">{row.entry_price}</TableCell>
                             
                             <TableCell size="small" align="left"><a data-id={row.id} data-exp={row.expiry_date} onClick={editHandle}><Edit color="primary" className="icon1" /></a></TableCell>
+                            <TableCell size="small" align="left"><a data-id={row.id} data-exp={row.expiry_date} onClick={closeHandle}><Close sx={{ color: "red" }} className="icon1" /></a></TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
@@ -61,6 +77,7 @@ export default function Table1(props) {
         </TableContainer>
     );
 }
+
 // const [positionData, setPositionData] = useState([])
 // async function get_position_data() {
 //     const res = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/position')
