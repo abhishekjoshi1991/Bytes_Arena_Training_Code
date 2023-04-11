@@ -7,47 +7,29 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Edit from "@mui/icons-material/Edit";
 import Close from "@mui/icons-material/Close";
-import { useNavigate } from 'react-router-dom';
-
 
 export default function Table1(props) {
-    // console.log('=====================________',props.position.length)
-    // const [positionData, setPositionData] = useState([])
-    // async function get_position_data() {
-    //     const res = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/position')
-
-    //     const response = await res.json()
-    //     if (response) {
-    //         setPositionData(response)
-    //     }
-    // }
-
-    // useEffect(() => {
-    //     get_position_data();
-    // }, [])
-
     const data1 = props.position
-    const navigate = useNavigate();
-
 
     const editHandle = (e) => {
-        // console.log(e.target.value)
-        // console.log(e.currentTarget.getAttribute("data-id"));
-        // console.log(e.currentTarget.getAttribute("data-exp"));
     }
 
     async function closeHandle(e) {
-        // console.log(e.target.value)
-        console.log(e.currentTarget.getAttribute("data-id"))
         const data = e.currentTarget.getAttribute("data-id")
-        const req_graph = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/position', {
+        const req_delete_data = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/position', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(data)
             })
-        navigate(0)
+            
+        const res_delete_data = await req_delete_data.json()
+        if (res_delete_data) {
+            const get_left_data = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/position')
+            const left_data = await get_left_data.json()
+            props.handleTableCallback(left_data)
+        }
     }
     
     return (
@@ -77,66 +59,3 @@ export default function Table1(props) {
         </TableContainer>
     );
 }
-
-// const [positionData, setPositionData] = useState([])
-// async function get_position_data() {
-//     const res = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/position')
-
-//     const response = await res.json()
-//     if (response) {
-//         setPositionData(response)
-//     }
-// }
-
-// useEffect(() => {
-//     get_position_data();
-// }, [])
-// const data1 = props.position
-// const ref = props.refresh
-
-// return (
-//         <div id="Table">
-//             <table>
-//                 {/* <thead>
-//                 <tr>
-//                     <th>ID</th>
-//                     <th>Expiry</th>
-//                     <th>Strike</th>
-//                     <th>Option Type</th>
-//                     <th>Entry Price</th>
-//                 </tr>
-//             </thead> */}
-//                 <tbody>
-//                     {
-//                         data1.map((data, index) => {
-//                             return (
-//                                 <tr>
-//                                     <td>{data.quantity}</td>
-//                                     <td>{data.expiry_date}</td>
-//                                     <td>{data.strike_price}{data.option_type}</td>
-//                                     {/* <td>{data.option_type}</td> */}
-//                                     <td>{data.entry_price}</td>
-//                                 </tr>
-//                             )
-//                         })
-//                     }
-//                 </tbody>
-
-//             </table>
-//         </div>
-// )
-// }
-
-
-// var newData = expense.map((dt, i) => {
-//     let action = parse("<button id=" + dt.id + "></button>", {
-//         replace: ({ attribs }) => {
-//             if (attribs) {
-//                 return <><a data-value={attribs.id} onClick={editHandle}><EditIcon color="primary" /></a>&nbsp;&nbsp;&nbsp;<a data-value={attribs.id} onClick={deleteHandle}><DeleteIcon sx={{ color: pink[500] }} /></a>
-//                 </>;
-//             }
-//         }
-//     })
-//     return ({ ...dt, action });
-
-// })

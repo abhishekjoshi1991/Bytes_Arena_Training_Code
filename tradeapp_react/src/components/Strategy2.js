@@ -30,7 +30,8 @@ import {
 } from 'chart.js';
 
 import { Line } from 'react-chartjs-2';
-import Table from './Table';
+import Table2 from './Table2';
+import SideTable from './SideTable';
 
 ChartJS.register(
     CategoryScale,
@@ -61,9 +62,9 @@ const line_options = {
 };
 
 
-export default function Strategy() {
+export default function Strategy2() {
     const [expiryDateData, setExpiryDateData] = useState([])
-    const [index, setIndex] = useState('nifty');
+    const [index, setIndex] = useState('NIFTY');
     const [segment, setSegment] = useState('options');
     const [expiry, setExpiry] = useState("");
     const [optionStrike, setOptionStrike] = useState([]);
@@ -77,8 +78,9 @@ export default function Strategy() {
     const [entryValue, setEntryValue] = useState(0)
     const [tableData, setTableData] = useState([])
     const [tableProps, setTableProps] = useState([])
-
-    // const [dataValue, setDataValue] = useState('')
+    const [lotSize, setLotSize] = useState(0)
+    const [futurePrice, setFuturePrice] = useState(0)
+    const [maxProfitLoss, setMaxProfitLoss] = useState([])
 
     async function api_call() {
         const req_expiry = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/strategy_planner')
@@ -86,6 +88,18 @@ export default function Strategy() {
         const res_expiry = await req_expiry.json()
         if (res_expiry) {
             setExpiryDateData(res_expiry)
+        }
+
+        const req_lot = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/get_lot')
+        const res_lot = await req_lot.json()
+        if (res_lot) {
+            setLotSize(res_lot)
+        }
+
+        const req_fut_price = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/get_future_price')
+        const res_fut_price = await req_fut_price.json()
+        if (res_fut_price) {
+            setFuturePrice(res_fut_price)
         }
 
         const req_table_display = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/position')
@@ -108,10 +122,6 @@ export default function Strategy() {
             }
         }
     }
-
-    // useEffect(() => {
-    //     api_call();
-    // }, [])
 
     const getcount = (qty) => {
         setCount(qty)
@@ -198,18 +208,13 @@ export default function Strategy() {
 
     useEffect(() => {
         api_call()
-        // console.log('11111111111',inputData)
-        console.log('2222222222', tableData)
-        // if (inputData.length > 0) {
         call_api()
-        // }
         if (tableData.length > 0) {
             position_table_api(tableData)
         }
-    }, [inputData, tableData])
+    }, [tableData])
 
     async function position_table_api(data) {
-        // const data_to_pass = { 'data': data }
         const api_response = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/position', {
             method: 'POST',
             headers: {
@@ -244,19 +249,23 @@ export default function Strategy() {
         })
 
         const api_result_new = await res2.json()
-        if (api_result_new) {
+        console.log('abhishek', api_result_new)
+        if (api_result_new !== 'No Data') {
+            console.log('======================++++++++++++++',api_result_new.length)
             setDataSet(api_result_new['dataset'])
+            setMaxProfitLoss(api_result_new['max_p_l'])
         }
     }
 
     const spot_price = 'Spot Price:' + 50
-    const futures_price = 'Futures Price:' + 50
-    const lot_size = 'Lot Size:' + 50
+    const futures_price = 'Futures Price:' + futurePrice
+    const lot_size = 'Lot Size:' + lotSize
     const iv = 'IV:' + 50
     const iv_percentile = 'IV Percentile:' + 50
     const iv_chart = 'NIFTY IV Chart'
     const dte = 'DTE:' + 50
 
+    console.log('======================.>',maxProfitLoss)
     const lineData =
     {
         labels: [],
@@ -275,22 +284,12 @@ export default function Strategy() {
                                 value={index}
                                 onChange={(e) => setIndex(e.target.value)}
                             >
-                                <MenuItem value="nifty">NIFTY</MenuItem>
+                                <MenuItem value="NIFTY">NIFTY</MenuItem>
                             </Select>
                             <FormHelperText>Select Index/Stock</FormHelperText>
                         </FormControl>
                     </div>
-                </div>
-                <div className='row'>
-                    <div className='col-md-1'><Chip sx={{ borderRadius: 0 }} label={spot_price} color="primary" /></div>
-                    <div className='col-md-1'><Chip sx={{ borderRadius: 0 }} label={futures_price} color="primary" /></div>
-                    <div className='col-md-1'><Chip sx={{ borderRadius: 0 }} label={lot_size} color="primary" /></div>
-                    <div className='col-md-1'><Chip sx={{ borderRadius: 0 }} label={iv} color="primary" /></div>
-                    <div className='col-md-1'><Chip sx={{ borderRadius: 0 }} label={iv_percentile} color="primary" /></div>
-                    <div className='col-md-1'><Chip sx={{ borderRadius: 0 }} label={iv_chart} color="primary" /></div>
-                    <div className='col-md-1'><Chip sx={{ borderRadius: 0 }} label={dte} color="primary" /></div>
-                    <div className='col-md-1'></div>
-                    <div className='col-md-4 text-end'>
+                    <div className='col-md-6 text-end'>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DatePicker
                                 label="Date"
@@ -301,8 +300,18 @@ export default function Strategy() {
                         </LocalizationProvider>
                     </div>
                 </div>
-
                 <div className='row'>
+                    <div className='col-md-1'><Chip sx={{ borderRadius: 0 }} label={spot_price} color="primary" /></div>
+                    <div className='col-md-2'><Chip sx={{ borderRadius: 0 }} label={futures_price} color="primary" /></div>
+                    <div className='col-md-1'><Chip sx={{ borderRadius: 0 }} label={lot_size} color="primary" /></div>
+                    <div className='col-md-1'><Chip sx={{ borderRadius: 0 }} label={iv} color="primary" /></div>
+                    <div className='col-md-1'><Chip sx={{ borderRadius: 0 }} label={iv_percentile} color="primary" /></div>
+                    <div className='col-md-1'><Chip sx={{ borderRadius: 0 }} label={iv_chart} color="primary" /></div>
+                    <div className='col-md-1'><Chip sx={{ borderRadius: 0 }} label={dte} color="primary" /></div>
+
+                </div>
+
+                <div className='row mt-2'>
                     <div className='col-md-3'>
                         <FormControl variant="standard" sx={{ m: 1, minWidth: 350 }}>
                             <Select
@@ -396,8 +405,12 @@ export default function Strategy() {
                     </div>
                 </div>
                 <div className='row mt-5'>
+                    <Table2 position={tableProps} handleTableCallback={getUpdatedTableData} />
+                </div>
+                <div className='row mt-5'>
                     <div className='col-md-4'>
-                        <Table position={tableProps} handleTableCallback={getUpdatedTableData} />
+                        {maxProfitLoss.length > 0 ? <SideTable profitlossdata={maxProfitLoss} /> : ''}
+                        {/* <SideTable profitlossdata={maxProfitLoss} /> */}
                     </div>
                     <div className='col-md-8'>
                         <Line options={line_options} data={lineData} />
