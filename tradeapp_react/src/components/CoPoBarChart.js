@@ -70,45 +70,6 @@ export default function CoPoBarChart() {
             symbol: formJson['symbol']
         }
 
-        let expiry, symbol = data
-        // console.log(',,,,,,,,',data)
-        // console.log(symbol)
-        // flushSync(() => {
-        //     setInputData([...inputData, data])
-        // })
-        setInputData([...inputData, data])
-        // console.log(document.querySelector('#demo').innerHTML);
-        // setInputData([...inputData, inputData.concat(data)])
-        // inputData.concat(data)
-
-        // console.log(inputData)
-        // const res1 = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/co_po_chart', {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json'
-        //     },
-        //     body: JSON.stringify(data)
-        // })
-
-        // const api_result = await res1.json()
-        // if (api_result) {
-        //     setLabelData(api_result['strike_price'])
-        //     setDataSet(api_result['dataset'])
-        // }
-    }
-
-    useEffect(() => {
-        console.log(inputData.length)
-        if (inputData.length > 0) {
-            console.log(',,,,,', inputData)
-            call_api(inputData)
-        }
-    }, [inputData])
-    // console.log(inputData)
-
-    async function call_api(data) {
-        console.log('api is calleddddd ')
-        console.log('%%%%%%%%%%', data)
         const res1 = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/co_po_chart', {
             method: 'POST',
             headers: {
@@ -122,8 +83,35 @@ export default function CoPoBarChart() {
             setLabelData(api_result['strike_price'])
             setDataSet(api_result['dataset'])
         }
-
     }
+
+    // useEffect(() => {
+    //     console.log(inputData.length)
+    //     if (inputData.length > 0) {
+    //         console.log(',,,,,', inputData)
+    //         call_api(inputData)
+    //     }
+    // }, [inputData])
+    // console.log(inputData)
+
+    // async function call_api(data) {
+    //     console.log('api is calleddddd ')
+    //     console.log('%%%%%%%%%%', data)
+    //     const res1 = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/co_po_chart', {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json'
+    //         },
+    //         body: JSON.stringify(data)
+    //     })
+
+    //     const api_result = await res1.json()
+    //     if (api_result) {
+    //         setLabelData(api_result['strike_price'])
+    //         setDataSet(api_result['dataset'])
+    //     }
+
+    // }
 
     const lineData =
     {

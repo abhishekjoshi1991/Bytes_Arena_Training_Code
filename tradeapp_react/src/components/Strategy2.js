@@ -17,7 +17,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import Chip from '@mui/material/Chip';
 import TextField from '@mui/material/TextField';
-
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -32,6 +32,7 @@ import {
 import { Line } from 'react-chartjs-2';
 import Table2 from './Table2';
 import SideTable from './SideTable';
+import PositionSlider from './PositionSlider';
 
 ChartJS.register(
     CategoryScale,
@@ -49,6 +50,11 @@ const line_options = {
         mode: 'index',
         intersect: false
     },
+    elements: {
+        point: {
+            radius: 0
+        }
+    },
     plugins: {
         legend: {
             position: 'top',
@@ -65,7 +71,7 @@ const line_options = {
 export default function Strategy2() {
     const [expiryDateData, setExpiryDateData] = useState([])
     const [index, setIndex] = useState('NIFTY');
-    const [segment, setSegment] = useState('options');
+    const [segment, setSegment] = useState('futures');
     const [expiry, setExpiry] = useState("");
     const [optionStrike, setOptionStrike] = useState([]);
     const [optionStrikeData, setOptionStrikeData] = useState([]);
@@ -74,16 +80,23 @@ export default function Strategy2() {
     const [count, setCount] = useState(0);
     const [dateValue, setDateValue] = useState(dayjs());
     const [dataset, setDataSet] = useState([]);
-    const [inputData, setInputData] = useState([])
+    // const [inputData, setInputData] = useState([])
     const [entryValue, setEntryValue] = useState(0)
     const [tableData, setTableData] = useState([])
     const [tableProps, setTableProps] = useState([])
     const [lotSize, setLotSize] = useState(0)
     const [futurePrice, setFuturePrice] = useState(0)
     const [maxProfitLoss, setMaxProfitLoss] = useState([])
+    const [sliderDaysCount, setSliderDaysCount] = useState(0)
 
     async function api_call() {
-        const req_expiry = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/strategy_planner')
+        const req_expiry = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/strategy_planner', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({'segment':segment})
+        })
 
         const res_expiry = await req_expiry.json()
         if (res_expiry) {
@@ -100,11 +113,34 @@ export default function Strategy2() {
         const res_fut_price = await req_fut_price.json()
         if (res_fut_price) {
             setFuturePrice(res_fut_price)
+            if (segment === 'futures') {
+                setEntryValue(res_fut_price)
+            }
         }
 
         const req_table_display = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/position')
         const res_table_display = await req_table_display.json()
         if (res_table_display) {
+            const dates_array = res_table_display.map((d) => d.expiry)
+            if (dates_array.length > 0) {
+                const minDate = new Date(Math.min(...dates_array.map(dateString => new Date(dateString))));
+
+                const day = minDate.getDate().toString().padStart(2, '0');
+                const month = (minDate.getMonth() + 1).toString().padStart(2, '0');
+                const year = minDate.getFullYear();
+                const formattedDate = `${day}-${month}-${year}`;
+                dayjs.extend(customParseFormat);
+                setDateValue(dayjs(formattedDate, 'DD-MM-YYYY'))
+
+                const current_date = new Date()
+                const timeDiff = minDate.getTime() - current_date.getTime();
+                const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                setSliderDaysCount(daysDiff)
+            }
+            else {
+                setDateValue(dayjs())
+            }
+
             setTableProps(res_table_display)
 
             const prepared_data = { 'data': res_table_display }
@@ -128,11 +164,6 @@ export default function Strategy2() {
     }
 
     async function getUpdatedTableData(data) {
-        console.log('^^^^^^^^^^^^^^^^^^^^^^^^', data)
-        console.log('^^^^^^^^^^^^^^^^^^^^^^^^', data.length)
-        console.log('^^^^^^^^^^^^^^^^^^^^^^^^', tableProps)
-        console.log('^^^^^^^^^^^^^^^^^^^^^^^^', tableProps)
-
         setTableProps(data)
         if (data.length > 0) {
             const prepared_data = { 'data': data }
@@ -147,14 +178,88 @@ export default function Strategy2() {
             const res_graph = await req_graph.json()
             if (res_graph) {
                 setDataSet(res_graph['dataset'])
+                setMaxProfitLoss(res_graph['max_p_l'])
             }
         }
         else {
             setDataSet([])
+            setMaxProfitLoss([])
+        }
+    }
+
+    async function getSliderValues(data) {
+        if (data['positionsliderchange'] === true) {
+            const req_position_data = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/position')
+            const res_position_data = await req_position_data.json()
+            let updatedArray = res_position_data.map(obj => Object.assign(obj, data))
+            if (updatedArray.length > 0) {
+                const prepared_data = { 'data': updatedArray }
+                const req_graph = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/expiry-spot', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(prepared_data)
+                })
+
+                const res_graph = await req_graph.json()
+                if (res_graph) {
+                    setDataSet(res_graph['dataset'])
+                    setMaxProfitLoss(res_graph['max_p_l'])
+                }
+            }
+            else {
+                setDataSet([])
+                setMaxProfitLoss([])
+            }
+        }
+    }
+
+    async function handleSegment(event) {
+        setSegment(event.target.value)
+        const req_expiry = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/strategy_planner', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({'segment':event.target.value})
+        })
+
+        const res_expiry = await req_expiry.json()
+        if (res_expiry) {
+            setExpiryDateData(res_expiry)
+        }
+        if (event.target.value === 'futures') {
+            setEntryValue(futurePrice)
+        }
+        else {
+            const data = {
+                'symbol': index,
+                'expiry': expiry,
+                'segment': event.target.value,
+                'strike': optionStrike,
+                'type': optionType
+            }
+            const get_entry_price_for_seg_change = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/get_option_entry_price', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            const ent_price = await get_entry_price_for_seg_change.json()
+            setEntryValue(ent_price)
         }
     }
 
     async function handleExpiry(event) {
+        const data = {
+            'symbol': index,
+            'expiry': event.target.value,
+            'segment': segment,
+            'strike': optionStrike,
+            'type': optionType
+        }
         setExpiry(event.target.value)
         const get_strike = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/get_option_strike', {
             method: 'POST',
@@ -166,6 +271,18 @@ export default function Strategy2() {
         const opt_strike = await get_strike.json()
         if (opt_strike) {
             setOptionStrikeData(opt_strike)
+        }
+
+        const get_entry_price_based_expiry = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/get_option_entry_price', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        const option_entry_price_based_exp = await get_entry_price_based_expiry.json()
+        if (option_entry_price_based_exp) {
+            setEntryValue(option_entry_price_based_exp)
         }
     }
 
@@ -191,27 +308,77 @@ export default function Strategy2() {
         }
     }
 
-    async function handleSubmit() {
+    async function handleOptionType(event) {
         const data = {
-            'index': index,
-            'segment': segment,
+            'symbol': index,
             'expiry': expiry,
+            'segment': segment,
             'strike': optionStrike,
-            'option_type': optionType,
-            'action': radioValue,
-            'quantity': count,
-            'entry_price': entryValue
+            'type': event.target.value
         }
+        setOptionType(event.target.value)
+        const get_entry_price_based_type = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/get_option_entry_price', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        const option_entry_price_based_type = await get_entry_price_based_type.json()
+        if (option_entry_price_based_type) {
+            setEntryValue(option_entry_price_based_type)
+        }
+    }
+
+    async function resetSubmit() {
+        const req_position_reset = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/position', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(0)
+        })
+
+        const res_position_reset = await req_position_reset.json()
+        if (res_position_reset === 'success') {
+            setDataSet([])
+            setMaxProfitLoss([])
+            setTableData([])
+        }
+    }
+
+    async function handleSubmit() {
+        const data = (segment === 'options') ?
+            {
+                'index': index,
+                'segment': segment,
+                'expiry': expiry,
+                'strike': optionStrike,
+                'option_type': optionType,
+                'action': radioValue,
+                'quantity': count,
+                'entry_price': entryValue
+            }
+            :
+            {
+                'index': index,
+                'segment': segment,
+                'expiry': expiry,
+                'action': radioValue,
+                'quantity': count,
+                'entry_price': entryValue
+
+            }
         // setInputData([...inputData, data])
         setTableData([data])
     }
 
     useEffect(() => {
         api_call()
-        call_api()
         if (tableData.length > 0) {
             position_table_api(tableData)
         }
+        call_api()
     }, [tableData])
 
     async function position_table_api(data) {
@@ -249,9 +416,7 @@ export default function Strategy2() {
         })
 
         const api_result_new = await res2.json()
-        console.log('abhishek', api_result_new)
         if (api_result_new !== 'No Data') {
-            console.log('======================++++++++++++++',api_result_new.length)
             setDataSet(api_result_new['dataset'])
             setMaxProfitLoss(api_result_new['max_p_l'])
         }
@@ -265,13 +430,11 @@ export default function Strategy2() {
     const iv_chart = 'NIFTY IV Chart'
     const dte = 'DTE:' + 50
 
-    console.log('======================.>',maxProfitLoss)
     const lineData =
     {
         labels: [],
         datasets: dataset
     }
-
     return (
         <div>
             <Container maxWidth="xl">
@@ -292,7 +455,7 @@ export default function Strategy2() {
                     <div className='col-md-6 text-end'>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DatePicker
-                                label="Date"
+                                label="Payoff Date"
                                 value={dateValue}
                                 onChange={(newValue) => setDateValue(newValue)}
                                 format="DD-MM-YYYY"
@@ -317,7 +480,7 @@ export default function Strategy2() {
                             <Select
                                 id="segment-select"
                                 value={segment}
-                                onChange={(e) => setSegment(e.target.value)}
+                                onChange={handleSegment}
                             >
                                 <MenuItem value="futures">Futures</MenuItem>
                                 <MenuItem value="options">Options</MenuItem>
@@ -366,7 +529,7 @@ export default function Strategy2() {
                                 <Select
                                     id="option-type-select"
                                     value={optionType}
-                                    onChange={(e) => setOptionType(e.target.value)}
+                                    onChange={handleOptionType}
                                 >
                                     <MenuItem value='CE'>CE</MenuItem>
                                     <MenuItem value='PE'>PE</MenuItem>
@@ -407,13 +570,26 @@ export default function Strategy2() {
                 <div className='row mt-5'>
                     <Table2 position={tableProps} handleTableCallback={getUpdatedTableData} />
                 </div>
+                <div className='row text-end mt-2'>
+                    <div className='col-md-11'></div>
+                    <div className='coll-md-1'>
+                        <Button variant="outlined" onClick={resetSubmit}>Reset</Button>
+                    </div>
+                </div>
                 <div className='row mt-5'>
                     <div className='col-md-4'>
                         {maxProfitLoss.length > 0 ? <SideTable profitlossdata={maxProfitLoss} /> : ''}
                         {/* <SideTable profitlossdata={maxProfitLoss} /> */}
                     </div>
                     <div className='col-md-8'>
-                        <Line options={line_options} data={lineData} />
+                        {maxProfitLoss.length > 0 ? <Line options={line_options} data={lineData} /> : ''}
+                    </div>
+                </div>
+                <div className='row mt-5'>
+                    <div className='col-md-4'>
+                    </div>
+                    <div className='col-md-8'>
+                        {maxProfitLoss.length > 0 ? <PositionSlider dateProps={sliderDaysCount} handleSliderCallback={getSliderValues} /> : ''}
                     </div>
                 </div>
             </Container>

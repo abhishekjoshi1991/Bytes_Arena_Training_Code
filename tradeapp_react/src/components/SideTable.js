@@ -1,7 +1,6 @@
 import React from 'react'
 
 export default function SideTable(props) {
-    console.log('joshi', props)
     const data1 = props.profitlossdata[0]
 
     return (
@@ -42,12 +41,22 @@ export default function SideTable(props) {
             </div>
             <div className='row mt-3'>
                 <div className='col-md-8'>
-                    <strong>Break-evens
+                    <strong>Break-evens['expiry']
 
                     </strong>
                 </div>
                 <div className='col-md-4'>
-                    0
+                    {data1['break_even_points_expiry']}
+                </div>
+            </div>
+            <div className='row mt-3'>
+                <div className='col-md-8'>
+                    <strong>Break-evens['t_0']
+
+                    </strong>
+                </div>
+                <div className='col-md-4'>
+                    {data1['break_even_points_t_0']}
                 </div>
             </div>
             <div className='row mt-3'>
@@ -56,7 +65,7 @@ export default function SideTable(props) {
                     </strong>
                 </div>
                 <div className='col-md-4'>
-                {data1['current_pl']}
+                    {data1['current_pl']}
                 </div>
             </div>
             <div className='row mt-3'>
@@ -65,7 +74,7 @@ export default function SideTable(props) {
                     </strong>
                 </div>
                 <div className='col-md-4'>
-                    0
+                    {data1['net_credit']}
                 </div>
             </div>
             <div className='row mt-3'>

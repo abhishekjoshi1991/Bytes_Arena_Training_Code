@@ -51,8 +51,6 @@ export default function Table2(props) {
     }
 
     async function submitHandle() {
-        console.log('----------------',modalValue)
-        console.log('----------------',dataIdOnExit)
         const data = {
             'id': dataIdOnExit,
             'exit_price': modalValue
@@ -66,8 +64,6 @@ export default function Table2(props) {
         })
         setOpen(false)
         navigate(0)
-
-        // console.log(e.currentTarget.getAttribute("data-id"))
     }
 
     async function closeHandle(e) {
@@ -95,6 +91,7 @@ export default function Table2(props) {
                     <TableHead>
                         <TableRow>
                             <TableCell>Symbol</TableCell>
+                            <TableCell align="center">Lot Qty.</TableCell>
                             <TableCell align="center">Delta</TableCell>
                             <TableCell align="center">Gamma</TableCell>
                             <TableCell align="center">Theta</TableCell>
@@ -122,6 +119,7 @@ export default function Table2(props) {
                                 {/* <TableCell size="small" align="left">+{row.quantity}x</TableCell> */}
                                 <TableCell size="small" align="left">{row.action === 'BUY' ? <Chip sx={{ borderRadius: 1 }} size='small' label='B' color="success" /> : <Chip sx={{ borderRadius: 1 }} size='small' label='S' color="error" />}
                                     <span> </span>{row.index}-{row.strike}{row.option_type}-{row.expiry}</TableCell>
+                                <TableCell size="small" align="center">{row.quantity}</TableCell>
                                 <TableCell size="small" align="center">{row.delta}</TableCell>
                                 <TableCell size="small" align="center">{row.gamma}</TableCell>
                                 <TableCell size="small" align="center">{row.theta}</TableCell>
@@ -137,7 +135,9 @@ export default function Table2(props) {
 
                                 <TableCell size="small" align="right">
                                     <a data-id={row.id} data-exp={row.expiry_date} onClick={editHandle}><Edit color="primary" className="icon1" /></a>
+                                    <span> </span>
                                     <a data-id={row.id} data-exp={row.expiry_date} onClick={closeHandle}><DeleteIcon color="error" className="icon1" /></a>
+                                    <span> </span>
                                     <a data-id={row.id} data-exp={row.expiry_date} onClick={exitHandle}><ExitToAppIcon color="warning" className="icon1" /></a>
                                 </TableCell>
                                 {/* <TableCell size="small" align="left"><a data-id={row.id} data-exp={row.expiry_date} onClick={closeHandle}><Close sx={{ color: "red" }} className="icon1" /></a></TableCell> */}
