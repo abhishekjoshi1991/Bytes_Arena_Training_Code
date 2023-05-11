@@ -10,6 +10,7 @@ import MultiStrikeOIChart from './components/MultiStrikeOIChart';
 import Strategy from "./components/Strategy";
 import Strategy2 from "./components/Strategy2";
 import OptionChainTable from "./components/OptionChainTable";
+import FutureChainTable from "./components/FutureChainTable";
 
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
         <Route path="/strategy_planner" element={<Strategy/>} />
         <Route path="/strategy_planner2" element={<Strategy2/>} />
         <Route path="/option_chain_table" element={<OptionChainTable/>} />
+        <Route path="/future_chain_table" element={<FutureChainTable/>} />
       </Routes>
     </BrowserRouter>
     // <div className="App">
