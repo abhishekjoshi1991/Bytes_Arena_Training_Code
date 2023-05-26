@@ -1,48 +1,12 @@
 import React, { useEffect, useState } from 'react'
-// import {
-//     Chart as ChartJS,
-//     CategoryScale,
-//     LinearScale,
-//     PointElement,
-//     LineElement,
-//     Title,
-//     Tooltip,
-//     Legend,
-// } from 'chart.js';
 import 'chart.js/auto';
 import CoPoBarChartGraph from './CoPoBarChartGraph';
-import { flushSync } from 'react-dom';
-
-// ChartJS.register(
-//     CategoryScale,
-//     LinearScale,
-//     PointElement,
-//     LineElement,
-//     Title,
-//     Tooltip,
-//     Legend
-// );
-
-// const options = {
-//     responsive: true,
-//     plugins: {
-//       legend: {
-//         position: 'top',
-//       },
-//       title: {
-//         display: false,
-//         text: 'Chart.js Line Chart',
-//       },
-//     },
-//   };
 
 export default function CoPoBarChart() {
     const [expiryDateData, setExpiryDateData] = useState([])
     const [symbolData, setSymbolData] = useState([])
     const [labelData, setLabelData] = useState([])
     const [dataset, setDataSet] = useState([])
-
-    const [inputData, setInputData] = useState([])
 
     async function api_call() {
         const res = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/co_po_chart')
@@ -57,6 +21,7 @@ export default function CoPoBarChart() {
 
     useEffect(() => {
         api_call();
+        console.log('api called')
     }, [])
 
     async function selectHandler(e) {
@@ -84,34 +49,6 @@ export default function CoPoBarChart() {
             setDataSet(api_result['dataset'])
         }
     }
-
-    // useEffect(() => {
-    //     console.log(inputData.length)
-    //     if (inputData.length > 0) {
-    //         console.log(',,,,,', inputData)
-    //         call_api(inputData)
-    //     }
-    // }, [inputData])
-    // console.log(inputData)
-
-    // async function call_api(data) {
-    //     console.log('api is calleddddd ')
-    //     console.log('%%%%%%%%%%', data)
-    //     const res1 = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/co_po_chart', {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json'
-    //         },
-    //         body: JSON.stringify(data)
-    //     })
-
-    //     const api_result = await res1.json()
-    //     if (api_result) {
-    //         setLabelData(api_result['strike_price'])
-    //         setDataSet(api_result['dataset'])
-    //     }
-
-    // }
 
     const lineData =
     {
@@ -153,10 +90,7 @@ export default function CoPoBarChart() {
                     </div>
                     <div className="col-md-2"><button className="btn btn-info" type="submit">Submit</button></div>
                 </div>
-
-
             </form>
-
             <CoPoBarChartGraph chartData={lineData} />
         </div>
     )

@@ -11,6 +11,9 @@ import Strategy from "./components/Strategy";
 import Strategy2 from "./components/Strategy2";
 import OptionChainTable from "./components/OptionChainTable";
 import FutureChainTable from "./components/FutureChainTable";
+import OptionIntradaySingleStrike from "./components/OptionIntradaySingleStrike";
+import FutureIntradaySingleStrike from "./components/FutureIntradaySingleStrike";
+import OptionIntradayMultiStrike from "./components/OptionIntradayMultiStrike";
 
 
 function App() {
@@ -27,6 +30,9 @@ function App() {
         <Route path="/strategy_planner2" element={<Strategy2/>} />
         <Route path="/option_chain_table" element={<OptionChainTable/>} />
         <Route path="/future_chain_table" element={<FutureChainTable/>} />
+        <Route path="/intraday_single_strike_option" element={<OptionIntradaySingleStrike/>} />
+        <Route path="/intraday_single_strike_future" element={<FutureIntradaySingleStrike/>} />
+        <Route path="/intraday_multi_strike_option" element={<OptionIntradayMultiStrike/>} />
       </Routes>
     </BrowserRouter>
     // <div className="App">

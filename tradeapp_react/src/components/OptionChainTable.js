@@ -13,6 +13,7 @@ export default function OptionChainTable() {
     const [lot, setLot] = useState('')
     const [time, setTime] = useState('')
     const [iv, setIV] = useState('')
+    const [maxPain, setMaxPain] = useState('')
 
     async function api_call() {
         const res = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/option_chain_table')
@@ -44,6 +45,7 @@ export default function OptionChainTable() {
             setLot(option_table_response['lot'])
             setTime(option_table_response['time'])
             setIV(option_table_response['iv'])
+            setMaxPain(option_table_response['max_pain'])
         }
     }
 
@@ -115,7 +117,7 @@ export default function OptionChainTable() {
                         />
                     </div>
                     <div className="col-md-1 mt-1 text-end"> <strong>Time</strong> </div>
-                    <div className='col-md-1'>
+                    <div className='col-md-2'>
                         <TextField
                             id="standard-read-only-input"
                             value={time}
@@ -147,7 +149,7 @@ export default function OptionChainTable() {
                     <div className='col-md-1'>
                         <TextField
                             id="standard-read-only-input"
-                            value='10'
+                            value={maxPain}
                             InputProps={{
                                 readOnly: true,
                             }}
@@ -158,7 +160,7 @@ export default function OptionChainTable() {
                 </div>
             </form>
             {/* <OptionChainTableLayoutRsuite/> */}
-            <OptionChainTableLayout tableData={optionTableData} />
+            <OptionChainTableLayout tableData={optionTableData}/>
 
         </div>
     )

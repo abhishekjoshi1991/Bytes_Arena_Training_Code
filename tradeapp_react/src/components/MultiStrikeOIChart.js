@@ -97,7 +97,7 @@ export default function MultiStrikeOIChart() {
         'Content-Type': 'application/json'
       },
       // body: JSON.stringify(e.target.value)
-      body: JSON.stringify(exp_array)
+      body: JSON.stringify({'expiry': exp_array})
     })
     const result1 = await res1.json()
     if (result1) {
