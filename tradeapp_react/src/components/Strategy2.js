@@ -70,6 +70,7 @@ const line_options = {
 
 export default function Strategy2() {
     const [expiryDateData, setExpiryDateData] = useState([])
+    const [futureExpiryDateData, setFutureExpiryDateData] = useState([])
     const [index, setIndex] = useState('NIFTY');
     const [segment, setSegment] = useState('futures');
     const [expiry, setExpiry] = useState("");
@@ -95,12 +96,18 @@ export default function Strategy2() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({'segment':segment})
+            body: JSON.stringify({ 'segment': segment })
         })
 
         const res_expiry = await req_expiry.json()
         if (res_expiry) {
-            setExpiryDateData(res_expiry)
+            console.log(segment)
+            if (segment == 'futures') {
+                setFutureExpiryDateData(res_expiry)
+            }
+            else {
+                setExpiryDateData(res_expiry)
+            }
         }
 
         const req_lot = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/get_lot')
@@ -222,12 +229,17 @@ export default function Strategy2() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({'segment':event.target.value})
+            body: JSON.stringify({ 'segment': event.target.value })
         })
 
         const res_expiry = await req_expiry.json()
         if (res_expiry) {
-            setExpiryDateData(res_expiry)
+            if (event.target.value === 'futures') {
+                setFutureExpiryDateData(res_expiry)
+            }
+            else {
+                setExpiryDateData(res_expiry)
+            }
         }
         if (event.target.value === 'futures') {
             setEntryValue(futurePrice)
@@ -357,7 +369,8 @@ export default function Strategy2() {
                 'option_type': optionType,
                 'action': radioValue,
                 'quantity': count,
-                'entry_price': entryValue
+                'entry_price': entryValue,
+                'expiry_text': expiryDateData.map((entry) => entry.exp)
             }
             :
             {
@@ -366,13 +379,16 @@ export default function Strategy2() {
                 'expiry': expiry,
                 'action': radioValue,
                 'quantity': count,
-                'entry_price': entryValue
+                'entry_price': entryValue,
+                'expiry_text': futureExpiryDateData.map((entry) => entry.exp)
+
 
             }
         // setInputData([...inputData, data])
         setTableData([data])
     }
 
+    console.log(expiryDateData)
     useEffect(() => {
         api_call()
         if (tableData.length > 0) {
@@ -437,7 +453,7 @@ export default function Strategy2() {
     }
     return (
         <div>
-            <Container maxWidth="xl">
+            <Container maxWidth="xxl">
                 <h2> Strategy Builder</h2>
                 <div className='row'>
                     <div className='col-md-6'>
@@ -497,9 +513,13 @@ export default function Strategy2() {
                                 // onChange={(e) => setExpiry(e.target.value)}
                                 onChange={handleExpiry}
                             >
-                                {expiryDateData.map((data) => (
+                                { (segment === 'options') ? expiryDateData.map((data) => (
                                     <MenuItem key={data.id} value={data.exp}>{data.exp}</MenuItem>
-                                ))}
+                                )) : 
+                                futureExpiryDateData.map((data) => (
+                                    <MenuItem key={data.id} value={data.exp}>{data.exp}</MenuItem>
+                                ))
+                                }
                             </Select>
                             <FormHelperText>Select Expiry</FormHelperText>
                         </FormControl>
@@ -568,7 +588,7 @@ export default function Strategy2() {
                     </div>
                 </div>
                 <div className='row mt-5'>
-                    <Table2 position={tableProps} handleTableCallback={getUpdatedTableData} />
+                    <Table2 position={tableProps} expiry={expiryDateData} futureExpiry={futureExpiryDateData} handleTableCallback={getUpdatedTableData} />
                 </div>
                 <div className='row text-end mt-2'>
                     <div className='col-md-11'></div>

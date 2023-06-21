@@ -14,7 +14,7 @@ import FutureChainTable from "./components/FutureChainTable";
 import OptionIntradaySingleStrike from "./components/OptionIntradaySingleStrike";
 import FutureIntradaySingleStrike from "./components/FutureIntradaySingleStrike";
 import OptionIntradayMultiStrike from "./components/OptionIntradayMultiStrike";
-
+import MyTable from "./components/demo";
 
 function App() {
   return (
@@ -33,6 +33,7 @@ function App() {
         <Route path="/intraday_single_strike_option" element={<OptionIntradaySingleStrike/>} />
         <Route path="/intraday_single_strike_future" element={<FutureIntradaySingleStrike/>} />
         <Route path="/intraday_multi_strike_option" element={<OptionIntradayMultiStrike/>} />
+        <Route path="/demo" element={<MyTable/>} />
       </Routes>
     </BrowserRouter>
     // <div className="App">

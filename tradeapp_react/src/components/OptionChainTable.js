@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react'
 import OptionChainTableLayoutRsuite from './OptionChainTableLayoutRsuite';
 import OptionChainTableLayout from './OptionChainTableLayout'
 import TextField from '@mui/material/TextField';
-
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 
 export default function OptionChainTable() {
     const [expiryDateData, setExpiryDateData] = useState([])
@@ -14,6 +15,7 @@ export default function OptionChainTable() {
     const [time, setTime] = useState('')
     const [iv, setIV] = useState('')
     const [maxPain, setMaxPain] = useState('')
+    const [lotQty, setLotQty] = useState('lot');
 
     async function api_call() {
         const res = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/option_chain_table')
@@ -57,6 +59,13 @@ export default function OptionChainTable() {
         // setExpiry(e.target.value)
         get_table_data(e.target.value, symbolData)
     }
+
+    const handleLotQty = (event, value) => {
+        if (value !== null) {
+            setLotQty(value);
+            console.log(value)
+        }
+    };
 
     useEffect(() => {
         api_call();
@@ -131,7 +140,20 @@ export default function OptionChainTable() {
                 </div>
                 <div className='row'>
                     <div style={{ width: '5rem' }} className="col-md-1 mt-1"></div>
-                    <div className="col-md-2 mt-1"></div>
+                    <div className="col-md-2 mt-2">
+                        <ToggleButtonGroup
+                            color="primary"
+                            value={lotQty}
+                            exclusive
+                            onChange={handleLotQty}
+                            aria-label="Platform"
+                            size='small'
+
+                        >
+                            <ToggleButton value="lot"><strong>Lot</strong></ToggleButton>
+                            <ToggleButton value="qty"><strong>Qty</strong></ToggleButton>
+                        </ToggleButtonGroup>
+                    </div>
                     <div style={{ width: '5rem' }} className="col-md-1 mt-1"></div>
                     <div className="col-md-1 mt-1"></div>
                     <div className="col-md-1 mt-1"> <strong>Lot Size</strong> </div>
@@ -160,7 +182,7 @@ export default function OptionChainTable() {
                 </div>
             </form>
             {/* <OptionChainTableLayoutRsuite/> */}
-            <OptionChainTableLayout tableData={optionTableData}/>
+            <OptionChainTableLayout tableData={optionTableData} lotqty={lotQty} />
 
         </div>
     )

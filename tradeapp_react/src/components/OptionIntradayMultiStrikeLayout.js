@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react'
-import Paper from '@mui/material/Paper';
+import React, { useState } from 'react'
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -18,43 +17,58 @@ export default function OptionIntradayMultiStrikeLayout(props) {
         const { value } = event.target;
         setHiddenColumns(value);
     };
+    const main_header_show = [
+        { id: 'combo', label: 'CE & PE Combined', minWidth: 130, span: 4, color: '#c0004e', top: '1px solid grey', bottom: 'none', left: 'none', right: '1px solid grey' },
+    ]
+
+    const main_header_columns = [
+        { id: 'time', label: '', minWidth: 130, span: 1, color: '#cc99ff', top: '1px solid grey', bottom: 'none', left: '1px solid grey', right: '1px solid grey' },
+        { id: 'ce', label: 'CE', minWidth: 130, span: 4, color: '#c00000', top: '1px solid grey', bottom: 'none', left: 'none', right: '1px solid grey' },
+        { id: 'pe', label: 'PE', minWidth: 130, span: 4, color: '#008000', top: '1px solid grey', bottom: 'none', left: 'none', right: '1px solid grey' },
+        ...(props.sameDiffStrike === 'same' || props.isAll==='all' ? main_header_show : '')
+    ]
+
+    const header_column_show = [
+        { id: 'oi_analysis', label: 'OI Analysis', minWidth: 130, span: 4, color: "#ffccff", top: '1px solid grey', bottom: 'none', left: 'none', right: '1px solid grey' },
+    ]
 
     const header_columns = [
-        { id: 'time_int', label: '', minWidth: 170, span: 1, color: '#cc99ff' },
-        { id: 'open_int', label: 'Open Interest', minWidth: 100, span: 3, color: '#ffcc99' },
-        { id: 'volume', label: 'Volume', minWidth: 100, span: 1, color: '#ffcc99' },
-        { id: 'put_volume', label: 'Volume', minWidth: 100, span: 1, color: "#99ff99" },
-        { id: 'put_open_int', label: 'Open Interest', minWidth: 100, span: 3, color: "#99ff99" },
-        { id: 'oi_analysis', label: 'OI Analysis', minWidth: 100, span: 4, color: "#ffccff" },
+        { id: 'time_int', label: 'Time', minWidth: 130, span: 1, color: '#cc99ff', top: '', bottom: 'none', left: '1px solid grey', right: '1px solid grey' },
+        { id: 'open_int', label: 'Open Interest', minWidth: 130, span: 3, color: '#ffcc99', top: '1px solid grey', bottom: 'none', left: 'none', right: '1px solid grey' },
+        { id: 'volume', label: 'Volume', minWidth: 130, span: 1, color: '#ffcc99', top: '1px solid grey', bottom: 'none', left: 'none', right: '1px solid grey' },
+        { id: 'put_volume', label: 'Volume', minWidth: 130, span: 1, color: "#99ff99", top: '1px solid grey', bottom: 'none', left: 'none', right: '1px solid grey' },
+        { id: 'put_open_int', label: 'Open Interest', minWidth: 130, span: 3, color: "#99ff99", top: '1px solid grey', bottom: 'none', left: 'none', right: '1px solid grey' },
+        ...(props.sameDiffStrike === 'same' || props.isAll==='all' ? header_column_show : '')
+    ]
+
+    const columns_show = [
+        { id: 'pe_oi_minus_ce_oi', label: 'PE OI (-)CE OI', minWidth: 130, color: '#ffccff', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        { id: 'pcr_oi', label: 'PCR (OI)', minWidth: 130, color: '#ffccff', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        { id: 'pe_oi_change_minus_ce_oi_change', label: 'PE OI Chg (-) CE OI Chg', minWidth: 130, color: '#ffccff', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        { id: 'oi_change_trend', label: 'PE OI & CE OI Chg Trend', minWidth: 130, color: '#ffccff', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
     ]
 
     const columns = [
-        { id: 'time_interval', label: 'Time', minWidth: 100, color: '#cc99ff', parent: 'time' },
+        { id: 'time_interval', label: '', minWidth: 130, color: '#cc99ff', parent: 'time', top: 'none', bottom: '1px solid grey', left: '1px solid grey', right: '1px solid grey' },
 
-        { id: 'ce_open_interest', label: 'OI', minWidth: 100, color: '#ffcc99', parent: 'ce' },
-        { id: 'ce_oi_change', label: 'OI Change', minWidth: 100, color: '#ffcc99', parent: 'ce' },
-        { id: 'ce_oi_pchange', label: 'OI % Change', minWidth: 100, color: '#ffcc99', parent: 'ce' },
-        { id: 'ce_total_traded_volume', label: 'Volume', minWidth: 100, color: '#ffcc99', parent: 'ce' },
+        { id: 'ce_open_interest', label: 'OI', minWidth: 130, color: '#ffcc99', parent: 'ce', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        { id: 'ce_oi_change', label: 'OI Change', minWidth: 130, color: '#ffcc99', parent: 'ce', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        { id: 'ce_oi_pchange', label: 'OI % Change', minWidth: 130, color: '#ffcc99', parent: 'ce', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        { id: 'ce_total_traded_volume', label: 'Volume', minWidth: 130, color: '#ffcc99', parent: 'ce', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
 
-        { id: 'pe_total_traded_volume', label: 'Volume', minWidth: 100, color: '#99ff99', parent: 'pe' },
-        { id: 'pe_oi_pchange', label: 'OI % Change', minWidth: 100, color: '#99ff99', parent: 'pe' },
-        { id: 'pe_oi_change', label: 'OI Change', minWidth: 100, color: '#99ff99', parent: 'pe' },
-        { id: 'pe_open_interest', label: 'OI', minWidth: 100, color: '#99ff99', parent: 'pe' },
+        { id: 'pe_total_traded_volume', label: 'Volume', minWidth: 130, color: '#99ff99', parent: 'pe', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        { id: 'pe_oi_pchange', label: 'OI % Change', minWidth: 130, color: '#99ff99', parent: 'pe', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        { id: 'pe_oi_change', label: 'OI Change', minWidth: 130, color: '#99ff99', parent: 'pe', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        { id: 'pe_open_interest', label: 'OI', minWidth: 130, color: '#99ff99', parent: 'pe', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
 
-        { id: 'pe_oi_minus_ce_oi', label: 'PE OI (-)CE OI', minWidth: 50, color: '#ffccff' },
-        { id: 'pcr_oi', label: 'PCR (OI)', minWidth: 50, color: '#ffccff' },
-        { id: 'pe_oi_change_minus_ce_oi_change', label: 'PE OI Change (-) CE OI Change', minWidth: 50, color: '#ffccff' },
-        { id: 'oi_change_trend', label: 'PE OI & CE OI Change Trend', minWidth: 50, color: '#ffccff' },
+        ...(props.sameDiffStrike === 'same' || props.isAll==='all' ? columns_show : '')
     ];
 
     const rows = props.tableData
-    const ce_strike = props.cestrike.map(obj => obj['value']).join(',')
-    console.log(ce_strike)
-    const pe_strike = props.pestrike.map(obj => obj['value']).join(',')
 
     return (
 
-        <Paper sx={{ width: '100%' }}>
+        <div sx={{ width: '100%' }}>
             <Select
                 multiple
                 value={hiddenColumns}
@@ -68,10 +82,10 @@ export default function OptionIntradayMultiStrikeLayout(props) {
                     </MenuItem>
                 ))}
             </Select>
-            <TableContainer style={{ position: 'fixed' }}>
+            <TableContainer className='mt-1' style={{ position: 'fixed', paddingRight: '20px' }}>
                 <Table stickyHeader aria-label="sticky table">
                     <TableHead>
-                        <TableRow >
+                        {/* <TableRow >
                             <TableCell align="center" colSpan={1} sx={{
                                 padding: "2px 2px",
                                 border: "1px solid grey",
@@ -88,7 +102,7 @@ export default function OptionIntradayMultiStrikeLayout(props) {
                                 fontWeight: "bold",
                                 color: "white"
                             }}>
-                                CE {ce_strike}
+                                CE
                             </TableCell>
                             <TableCell align="center" width={10} colSpan={4} sx={{
                                 padding: "2px 2px",
@@ -97,7 +111,7 @@ export default function OptionIntradayMultiStrikeLayout(props) {
                                 backgroundColor: "#008000",
                                 color: "white",
                             }}>
-                                PE {pe_strike}
+                                PE
                             </TableCell>
                             <TableCell align="center" colSpan={4} sx={{
                                 padding: "2px 2px",
@@ -108,6 +122,31 @@ export default function OptionIntradayMultiStrikeLayout(props) {
                             }}>
                                 CE & PE Combined
                             </TableCell>
+                        </TableRow> */}
+                        <TableRow>
+                            {main_header_columns.map((column) => (
+                                hiddenColumns.includes(column.id) ? null : (
+                                    <TableCell
+                                        key={column.id}
+                                        align='center'
+                                        colSpan={column.span}
+                                        sx={{
+                                            padding: "2px 2px",
+                                            borderTop: column.top,
+                                            borderBottom: column.bottom,
+                                            borderLeft: column.left,
+                                            borderRight: column.right,
+                                            // borderBottom: "1px solid #ffff66 ",
+                                            // border: column.id !== 'strike' ? "1px solid grey" : '',
+                                            fontWeight: "bold",
+                                            backgroundColor: column.color,
+                                            color: "white"
+
+                                        }}
+                                    >
+                                        {column.id !== 'strike' ? column.label : ''}
+                                    </TableCell>)
+                            ))}
                         </TableRow>
                         <TableRow>
                             {header_columns.map((column) => (
@@ -116,10 +155,15 @@ export default function OptionIntradayMultiStrikeLayout(props) {
                                         key={column.id}
                                         align='center'
                                         colSpan={column.span}
+                                        style={{ minWidth: column.minWidth, fontSize: 12 }}
                                         sx={{
                                             padding: "2px 2px",
-                                            borderBottom: "1px solid #ffff66 ",
-                                            border: column.id !== 'strike' ? "1px solid grey" : '',
+                                            borderTop: column.top,
+                                            borderBottom: column.bottom,
+                                            borderLeft: column.left,
+                                            borderRight: column.right,
+                                            // borderBottom: "1px solid #ffff66 ",
+                                            // border: column.id !== 'strike' ? "1px solid grey" : '',
                                             fontWeight: "bold",
                                             backgroundColor: column.color,
                                         }}
@@ -134,10 +178,14 @@ export default function OptionIntradayMultiStrikeLayout(props) {
                                     <TableCell
                                         key={column.id}
                                         align='center'
-                                        style={{ top: 57, minWidth: column.minWidth }}
+                                        style={{ minWidth: column.minWidth, fontSize: 12 }}
                                         sx={{
                                             padding: "2px 2px",
-                                            border: column.id !== 'strike_price' ? "1px solid grey" : '',
+                                            borderTop: column.top,
+                                            borderBottom: column.bottom,
+                                            borderLeft: column.left,
+                                            borderRight: column.right,
+                                            // border: column.id !== 'strike_price' ? "1px solid grey" : '',
                                             fontWeight: "bold",
                                             backgroundColor: column.color,
                                             // align: 'center'
@@ -160,6 +208,8 @@ export default function OptionIntradayMultiStrikeLayout(props) {
                                                     <TableCell key={column.id} align='center' size='small' sx={{
                                                         padding: "0px 0px",
                                                         border: "1px solid #e0e0dc",
+                                                        height: '35px',
+
                                                         // backgroundColor: column.id === 'ce_build_up' ? row.ce_color : column.id === 'pe_build_up' ? row.pe_color : '',
                                                         backgroundColor: row.ce_moneyness === 'ITM' && column.parent === 'ce' ? '#e7e6e6' : row.pe_moneyness === 'ITM' && column.parent === 'pe' ? '#e7e6e6' : '',
                                                         color: column.id === 'ce_changein_open_interest' && value > 0 ? "#ff0000" : column.id === 'ce_changein_open_interest' && value < 0 ? '#00cc00' : column.id === 'pe_changein_open_interest' && value > 0 ? '#00cc00' : column.id === 'pe_changein_open_interest' && value < 0 ? '#ff0000' : column.label === 'LTP Change' && value > 0 ? '#00cc00' : column.label === 'LTP Change' && value < 0 ? '#ff0000' : ''
@@ -174,7 +224,7 @@ export default function OptionIntradayMultiStrikeLayout(props) {
                     </TableBody>
                 </Table>
             </TableContainer>
-        </Paper>
+        </div>
     );
 }
 
