@@ -14,7 +14,10 @@ import FutureChainTable from "./components/FutureChainTable";
 import OptionIntradaySingleStrike from "./components/OptionIntradaySingleStrike";
 import FutureIntradaySingleStrike from "./components/FutureIntradaySingleStrike";
 import OptionIntradayMultiStrike from "./components/OptionIntradayMultiStrike";
+
 import MyTable from "./components/demo";
+import OICombinedChart from "./components/OICombinedChart";
+import OIStackedBarChart from "./components/OIStackedBarChart";
 
 function App() {
   return (
@@ -31,8 +34,10 @@ function App() {
         <Route path="/option_chain_table" element={<OptionChainTable/>} />
         <Route path="/future_chain_table" element={<FutureChainTable/>} />
         <Route path="/intraday_single_strike_option" element={<OptionIntradaySingleStrike/>} />
-        <Route path="/intraday_single_strike_future" element={<FutureIntradaySingleStrike/>} />
+        <Route path="/intraday_future_table" element={<FutureIntradaySingleStrike/>} />
         <Route path="/intraday_multi_strike_option" element={<OptionIntradayMultiStrike/>} />
+        <Route path="/oi_stats_options" element={<OICombinedChart/>} />
+        <Route path="/oi_stacked_chart" element={<OIStackedBarChart/>} />
         <Route path="/demo" element={<MyTable/>} />
       </Routes>
     </BrowserRouter>

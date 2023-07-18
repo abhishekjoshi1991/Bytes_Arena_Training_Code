@@ -23,31 +23,39 @@ export default function FutureIntradaySingleStrikeLayout(props) {
 
     const main_header_columns = [
         { id: 'time_inter_main', label: '', minWidth: 170, span: 1, color: '#cc99ff', top: '1px solid grey', bottom: 'none', left: '1px solid grey', right: '1px solid grey' },
-        { id: 'fut_main', label: 'Futures', minWidth: 170, span: 13, color: '#002060', top: '1px solid grey', bottom: 'none', left: 'none', right: '1px solid grey' },
+        { id: 'fut_main', label: 'Futures', minWidth: 170, span: 15, color: '#002060', top: '1px solid grey', bottom: 'none', left: 'none', right: '1px solid grey' },
     ]
 
     const header_columns = [
         { id: 'time_inter', label: 'Time', minWidth: 120, span: 1, color: '#cc99ff', top: '', bottom: 'none', left: '1px solid grey', right: '1px solid grey' },
         { id: 'fut_price', label: 'Price', minWidth: 170, span: 8, color: '#deebf7', top: '1px solid grey', bottom: 'none', left: 'none', right: '1px solid grey' },
-        { id: 'fut_open_int', label: 'Open Interest', minWidth: 170, span: 4, color: '#deebf7', top: '1px solid grey', bottom: 'none', left: 'none', right: '1px solid grey' },
-        { id: 'fut_volume', label: 'Volume', minWidth: 170, span: 1, color: '#deebf7', top: '1px solid grey', bottom: 'none', left: 'none', right: '1px solid grey' },
+        { id: 'fut_open_int', label: 'Open Interest', minWidth: 170, span: 5, color: '#deebf7', top: '1px solid grey', bottom: 'none', left: 'none', right: '1px solid grey' },
+        { id: 'fut_volume', label: '', minWidth: 170, span: 1, color: '#deebf7', top: '1px solid grey', bottom: 'none', left: 'none', right: '1px solid grey' },
+        { id: 'fut_volume_day', label: '', minWidth: 170, span: 1, color: '#deebf7', top: '1px solid grey', bottom: 'none', left: 'none', right: '1px solid grey' },
     ]
 
     const columns = [
-        { id: 'time_interval', label: '', minWidth: 70, color: '#cc99ff', parent: 'time', top: 'none', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
-        { id: 'last_price', label: 'Price', minWidth: 70, color: '#deebf7', parent: 'future', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
-        { id: 'price_change', label: 'Price Change', minWidth: 70, color: '#deebf7', parent: 'future', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
-        { id: 'price_pchange', label: 'Price % Change', minWidth: 70, color: '#deebf7', parent: 'future', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
-        { id: 'vwap', label: 'ATP/VWAP', minWidth: 70, color: '#deebf7', parent: 'future', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
-        { id: 'day_high', label: 'Day High', minWidth: 70, color: '#deebf7', parent: 'future', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
-        { id: 'day_low', label: 'Day Low', minWidth: 70, color: '#deebf7', parent: 'future', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
-        { id: 'oh', label: 'OH', minWidth: 70, color: '#deebf7', parent: 'future', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
-        { id: 'ol', label: 'OL', minWidth: 70, color: '#deebf7', parent: 'future', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
-        { id: 'build_up', label: 'Build-up', minWidth: 70, color: '#deebf7', parent: 'future', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
-        { id: 'open_interest', label: 'OI', minWidth: 70, color: '#deebf7', parent: 'future', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
-        { id: 'oi_change', label: 'OI Change', minWidth: 70, color: '#deebf7', parent: 'future', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
-        { id: 'oi_pchange', label: 'OI % Change', minWidth: 70, color: '#deebf7', parent: 'future', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
-        { id: 'num_of_contracts_traded', label: '', minWidth: 70, color: '#deebf7', parent: 'future', top: '', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        { id: 'time_interval', label: '', minWidth: 130, color: '#cc99ff', parent: 'time', top: 'none', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        { id: 'last_price', label: 'Price', minWidth: 130, color: '#deebf7', parent: 'future', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        // { id: 'price_change', label: 'Price Change', minWidth: 130, color: '#deebf7', parent: 'future', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        // { id: 'price_pchange', label: 'Price % Change', minWidth: 130, color: '#deebf7', parent: 'future', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        { id: 'ltp_chg_combined', label: 'Price Change (Previous Time)', minWidth: 130, color: '#deebf7', parent: 'future', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        { id: 'combined_price_change_wrt_previous_day', label: 'Price Change (Previous Day)', minWidth: 130, color: '#deebf7', parent: 'future', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        { id: 'vwap', label: 'ATP/VWAP', minWidth: 130, color: '#deebf7', parent: 'future', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        { id: 'high_price', label: 'Day High', minWidth: 130, color: '#deebf7', parent: 'future', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        { id: 'low_price', label: 'Day Low', minWidth: 130, color: '#deebf7', parent: 'future', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        { id: 'oh', label: 'OH', minWidth: 130, color: '#deebf7', parent: 'future', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        { id: 'ol', label: 'OL', minWidth: 130, color: '#deebf7', parent: 'future', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        { id: 'build_up_pre_time', label: 'Build-up (Previous Time)', minWidth: 130, color: '#deebf7', parent: 'future', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        { id: 'build_up', label: 'Build-up (Previous Day)', minWidth: 130, color: '#deebf7', parent: 'future', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        { id: 'open_interest', label: 'OI', minWidth: 130, color: '#deebf7', parent: 'future', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        // { id: 'oi_change', label: 'OI Change', minWidth: 130, color: '#deebf7', parent: 'future', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        // { id: 'oi_pchange', label: 'OI % Change', minWidth: 130, color: '#deebf7', parent: 'future', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        { id: 'oi_chg_combined', label: 'OI Change (Previous Time)', minWidth: 130, color: '#deebf7', parent: 'future', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        { id: 'combined_oi_change_wrt_previous_day', label: 'OI Change (Previous Day)', minWidth: 130, color: '#deebf7', parent: 'future', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        // { id: 'num_of_contracts_traded', label: '', minWidth: 130, color: '#deebf7', parent: 'future', top: '', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        { id: 'volume_actual', label: 'Volume (Time Interval)', minWidth: 130, color: '#deebf7', parent: 'future', top: '', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        { id: 'num_of_contracts_traded', label: 'Volume (Day)', minWidth: 130, color: '#deebf7', parent: 'future', top: '', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
     ];
 
     console.log(props.tableData)
@@ -157,11 +165,10 @@ export default function FutureIntradaySingleStrikeLayout(props) {
                                                         padding: "0px 0px",
                                                         border: "1px solid #F8F8F8",
                                                         height: '30px',
-                                                        // backgroundColor: column.id === 'ce_build_up' ? row.ce_color : column.id === 'pe_build_up' ? row.pe_color : '',
                                                         backgroundColor: row.ce_moneyness === 'ITM' && column.parent === 'ce' ? '#e7e6e6' : row.pe_moneyness === 'ITM' && column.parent === 'pe' ? '#e7e6e6' : '',
-                                                        color: column.id === 'ce_changein_open_interest' && value > 0 ? "#ff0000" : column.id === 'ce_changein_open_interest' && value < 0 ? '#00cc00' : column.id === 'pe_changein_open_interest' && value > 0 ? '#00cc00' : column.id === 'pe_changein_open_interest' && value < 0 ? '#ff0000' : column.label === 'LTP Change' && value > 0 ? '#00cc00' : column.label === 'LTP Change' && value < 0 ? '#ff0000' : ''
+                                                        color: column.id === 'ltp_chg_combined' ? row.ltp_chg_color : column.id === 'combined_price_change_wrt_previous_day' ? row.combined_price_change_wrt_previous_day_color : ''
                                                     }}>
-                                                        <div className='m-2 rounded' style={column.id === 'build_up' ? { backgroundColor: row.color } : { backgroundColor: '' }} >
+                                                        <div className='m-2 rounded' style={column.id === 'build_up' ? { backgroundColor: row.color } : column.id === 'build_up_pre_time' ? { backgroundColor: row.pre_time_color } : { backgroundColor: '' }} >
                                                             {value}
                                                         </div>
 

@@ -4,34 +4,45 @@ import OptionChainTableLayout from './OptionChainTableLayout'
 import TextField from '@mui/material/TextField';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+import OptionChainTableTimeSlider from './OptionChainTableTimeSlider';
+import Button from '@mui/material/Button';
+import CircleIcon from '@mui/icons-material/Circle';
 
 export default function OptionChainTable() {
     const [expiryDateData, setExpiryDateData] = useState([])
     const [symbolData, setSymbolData] = useState(['NIFTY'])
-    const [expiry, setExpiry] = useState('')
+    const [selectedExpiry, setSelectedExpiry] = useState('')
     const [optionTableData, setOptionTableData] = useState([])
     const [futureFairPrice, setFutureFairPrice] = useState('')
+    const [spotPrice, setSpotPrice] = useState('')
     const [lot, setLot] = useState('')
     const [time, setTime] = useState('')
     const [iv, setIV] = useState('')
     const [maxPain, setMaxPain] = useState('')
+    const [atmStrike, setATMStrike] = useState('')
     const [lotQty, setLotQty] = useState('lot');
+    const [timeList, setTimeList] = useState([])
+    const [selectedTime, setSelectedTime] = useState('')
+    const [liveButtonFLag, setLiveButtonFlag] = useState(false)
 
     async function api_call() {
         const res = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/option_chain_table')
 
         const result = await res.json()
         if (result) {
-            setExpiryDateData(result)
+            setExpiryDateData(result['expiry'])
+            setSelectedExpiry(result['expiry'][0])
+            setTimeList(result['time_list'])
+            setSelectedTime(result['time_list'][result['time_list'].length - 1])
         }
         // const symbol = ["NIFTY"]
         // setSymbolData(symbol)
-        get_table_data(result[0], symbolData)
+        get_table_data(result['expiry'][0], symbolData, result['time_list'][result['time_list'].length - 1])
 
     }
 
-    async function get_table_data(data, symbol) {
-        const data_to_pass = { 'expiry': data, 'symbol': symbol }
+    async function get_table_data(expiry, symbol, selected_time) {
+        const data_to_pass = { 'expiry': expiry, 'symbol': symbol, 'selected_time': selected_time }
         const request_table = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/option_chain_table', {
             method: 'POST',
             headers: {
@@ -43,29 +54,44 @@ export default function OptionChainTable() {
         const option_table_response = await request_table.json()
         if (option_table_response) {
             setOptionTableData(option_table_response['data'])
-            setFutureFairPrice(option_table_response['future_price'])
+            setFutureFairPrice(option_table_response['future_fair_price'])
+            setSpotPrice(option_table_response['future_price_spot'])
             setLot(option_table_response['lot'])
             setTime(option_table_response['time'])
             setIV(option_table_response['iv'])
             setMaxPain(option_table_response['max_pain'])
+            setATMStrike(option_table_response['atm_strike'])
         }
     }
 
     async function selectHandler(e) {
-        console.log(e)
+
     }
 
     async function expiryHandle(e) {
-        // setExpiry(e.target.value)
-        get_table_data(e.target.value, symbolData)
+        setSelectedExpiry(e.target.value)
+        get_table_data(e.target.value, symbolData, selectedTime)
     }
 
     const handleLotQty = (event, value) => {
         if (value !== null) {
             setLotQty(value);
-            console.log(value)
         }
     };
+
+    async function get_data_on_selected_time(start_time) {
+        console.log('***************', start_time)
+        setSelectedTime(start_time)
+        setLiveButtonFlag(false)
+        if (start_time !== selectedTime) {
+            get_table_data(selectedExpiry, symbolData, start_time)
+        }
+    }
+
+    async function handleLiveButton() {
+        console.log(timeList[timeList.length - 1])
+        setLiveButtonFlag(true)
+    }
 
     useEffect(() => {
         api_call();
@@ -103,11 +129,11 @@ export default function OptionChainTable() {
                             ))}
                         </select>
                     </div>
-                    <div className="col-md-1 mt-1"> <strong>Future Fair Price</strong> </div>
+                    <div className="col-md-1 mt-1"> <strong>Spot Price</strong> </div>
                     <div className='col-md-1'>
                         <TextField
                             id="standard-read-only-input"
-                            value={futureFairPrice}
+                            value={spotPrice}
                             InputProps={{
                                 readOnly: true,
                             }}
@@ -178,12 +204,34 @@ export default function OptionChainTable() {
                             variant="standard"
                         />
                     </div>
+                    <div className="col-md-1 mt-1 text-end"> <strong>Future Fair Price</strong> </div>
+                    <div className='col-md-2'>
+                        <TextField
+                            id="standard-read-only-input"
+                            value={futureFairPrice}
+                            InputProps={{
+                                readOnly: true,
+                            }}
+                            variant="standard"
+                        />
+                    </div>
 
                 </div>
             </form>
             {/* <OptionChainTableLayoutRsuite/> */}
-            <OptionChainTableLayout tableData={optionTableData} lotqty={lotQty} />
-
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+                <div className='mx-1' style={{ width: '95%' }}>
+                    {timeList.length > 0 && <OptionChainTableTimeSlider time_array={timeList} handleSelectedTime={get_data_on_selected_time} live_button_flag={liveButtonFLag}/>}
+                </div>
+                {timeList.length > 0 &&
+                <div style={{ width: '5%' }} className='mt-3'>
+                    <Button size='small' variant="outlined" color="error" onClick={handleLiveButton} disabled={selectedTime === timeList[timeList.length - 1] ? true : false}>
+                        <CircleIcon fontSize="14px" color="error" className='mx-1' />
+                        Live
+                    </Button>
+                </div>}
+            </div>
+            <OptionChainTableLayout tableData={optionTableData} lotqty={lotQty} atmStrike={atmStrike}/>
         </div>
     )
 }

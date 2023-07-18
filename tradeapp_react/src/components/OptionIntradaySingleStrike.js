@@ -90,7 +90,13 @@ export default function OptionIntradaySingleStrike() {
 
     async function ceStrikeHandle(e) {
         setCEStrike(e.target.value)
-        get_table_data(expiry, e.target.value, peStrike, timeInterval)
+        if (strikeBoolean === 'same') {
+            setPEStrike(e.target.value)
+            get_table_data(expiry, e.target.value, e.target.value, timeInterval)
+        }
+        else {
+            get_table_data(expiry, e.target.value, peStrike, timeInterval)
+        }
     }
 
     async function peStrikeHandle(e) {

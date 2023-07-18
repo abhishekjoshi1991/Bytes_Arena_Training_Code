@@ -12,7 +12,7 @@ export default function FutureIntradaySingleStrike() {
     const [timeInterval, setTimeInterval] = useState('3min')
 
     async function api_call() {
-        const res = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/intraday_table_single_strike_future')
+        const res = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/intraday_future_table')
 
         const result = await res.json()
         if (result) {
@@ -23,7 +23,7 @@ export default function FutureIntradaySingleStrike() {
     }
 
     async function get_future_table(data) {
-        const request_table_data = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/intraday_table_single_strike_future', {
+        const request_table_data = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/intraday_future_table', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

@@ -23,8 +23,8 @@ export default function OptionIntradayMultiStrikeLayout(props) {
 
     const main_header_columns = [
         { id: 'time', label: '', minWidth: 130, span: 1, color: '#cc99ff', top: '1px solid grey', bottom: 'none', left: '1px solid grey', right: '1px solid grey' },
-        { id: 'ce', label: 'CE', minWidth: 130, span: 4, color: '#c00000', top: '1px solid grey', bottom: 'none', left: 'none', right: '1px solid grey' },
-        { id: 'pe', label: 'PE', minWidth: 130, span: 4, color: '#008000', top: '1px solid grey', bottom: 'none', left: 'none', right: '1px solid grey' },
+        { id: 'ce', label: 'CE', minWidth: 130, span: 3, color: '#c00000', top: '1px solid grey', bottom: 'none', left: 'none', right: '1px solid grey' },
+        { id: 'pe', label: 'PE', minWidth: 130, span: 3, color: '#008000', top: '1px solid grey', bottom: 'none', left: 'none', right: '1px solid grey' },
         ...(props.sameDiffStrike === 'same' || props.isAll==='all' ? main_header_show : '')
     ]
 
@@ -35,8 +35,8 @@ export default function OptionIntradayMultiStrikeLayout(props) {
     const header_columns = [
         { id: 'time_int', label: 'Time', minWidth: 130, span: 1, color: '#cc99ff', top: '', bottom: 'none', left: '1px solid grey', right: '1px solid grey' },
         { id: 'open_int', label: 'Open Interest', minWidth: 130, span: 3, color: '#ffcc99', top: '1px solid grey', bottom: 'none', left: 'none', right: '1px solid grey' },
-        { id: 'volume', label: 'Volume', minWidth: 130, span: 1, color: '#ffcc99', top: '1px solid grey', bottom: 'none', left: 'none', right: '1px solid grey' },
-        { id: 'put_volume', label: 'Volume', minWidth: 130, span: 1, color: "#99ff99", top: '1px solid grey', bottom: 'none', left: 'none', right: '1px solid grey' },
+        // { id: 'volume', label: 'Volume', minWidth: 130, span: 1, color: '#ffcc99', top: '1px solid grey', bottom: 'none', left: 'none', right: '1px solid grey' },
+        // { id: 'put_volume', label: 'Volume', minWidth: 130, span: 1, color: "#99ff99", top: '1px solid grey', bottom: 'none', left: 'none', right: '1px solid grey' },
         { id: 'put_open_int', label: 'Open Interest', minWidth: 130, span: 3, color: "#99ff99", top: '1px solid grey', bottom: 'none', left: 'none', right: '1px solid grey' },
         ...(props.sameDiffStrike === 'same' || props.isAll==='all' ? header_column_show : '')
     ]
@@ -44,21 +44,24 @@ export default function OptionIntradayMultiStrikeLayout(props) {
     const columns_show = [
         { id: 'pe_oi_minus_ce_oi', label: 'PE OI (-)CE OI', minWidth: 130, color: '#ffccff', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
         { id: 'pcr_oi', label: 'PCR (OI)', minWidth: 130, color: '#ffccff', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
-        { id: 'pe_oi_change_minus_ce_oi_change', label: 'PE OI Chg (-) CE OI Chg', minWidth: 130, color: '#ffccff', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
-        { id: 'oi_change_trend', label: 'PE OI & CE OI Chg Trend', minWidth: 130, color: '#ffccff', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        { id: 'pe_oi_change_minus_ce_oi_change', label: 'PE OI Chg (-) CE OI Chg (Previous Time)', minWidth: 130, color: '#ffccff', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        { id: 'pe_oi_change_minus_ce_oi_change_wrt_previous_day', label: 'PE OI Chg (-) CE OI Chg (Previous Day)', minWidth: 130, color: '#ffccff', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
     ]
 
     const columns = [
-        { id: 'time_interval', label: '', minWidth: 130, color: '#cc99ff', parent: 'time', top: 'none', bottom: '1px solid grey', left: '1px solid grey', right: '1px solid grey' },
+        { id: 'time_interval', label: '', minWidth: 70, color: '#cc99ff', parent: 'time', top: 'none', bottom: '1px solid grey', left: '1px solid grey', right: '1px solid grey' },
 
         { id: 'ce_open_interest', label: 'OI', minWidth: 130, color: '#ffcc99', parent: 'ce', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
-        { id: 'ce_oi_change', label: 'OI Change', minWidth: 130, color: '#ffcc99', parent: 'ce', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
-        { id: 'ce_oi_pchange', label: 'OI % Change', minWidth: 130, color: '#ffcc99', parent: 'ce', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
-        { id: 'ce_total_traded_volume', label: 'Volume', minWidth: 130, color: '#ffcc99', parent: 'ce', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        // { id: 'ce_oi_change', label: 'OI Change', minWidth: 130, color: '#ffcc99', parent: 'ce', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        // { id: 'ce_oi_pchange', label: 'OI % Change', minWidth: 130, color: '#ffcc99', parent: 'ce', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        { id: 'ce_oi_chg_combined', label: 'OI Change (Previous Time)', minWidth: 130, color: '#ffcc99', parent: 'ce', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        { id: 'ce_oi_chg_with_previous_day_combined', label: 'OI Change (Previous Day)', minWidth: 130, color: '#ffcc99', parent: 'ce', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
 
-        { id: 'pe_total_traded_volume', label: 'Volume', minWidth: 130, color: '#99ff99', parent: 'pe', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
-        { id: 'pe_oi_pchange', label: 'OI % Change', minWidth: 130, color: '#99ff99', parent: 'pe', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
-        { id: 'pe_oi_change', label: 'OI Change', minWidth: 130, color: '#99ff99', parent: 'pe', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        // { id: 'pe_total_traded_volume', label: 'Volume', minWidth: 130, color: '#99ff99', parent: 'pe', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        // { id: 'pe_oi_pchange', label: 'OI % Change', minWidth: 130, color: '#99ff99', parent: 'pe', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        // { id: 'pe_oi_change', label: 'OI Change', minWidth: 130, color: '#99ff99', parent: 'pe', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        { id: 'pe_oi_chg_with_previous_day_combined', label: 'OI Change (Previous Day)', minWidth: 130, color: '#99ff99', parent: 'pe', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
+        { id: 'pe_oi_chg_combined', label: 'OI Change (Previous Time)', minWidth: 130, color: '#99ff99', parent: 'pe', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
         { id: 'pe_open_interest', label: 'OI', minWidth: 130, color: '#99ff99', parent: 'pe', top: '1px solid grey', bottom: '1px solid grey', left: 'none', right: '1px solid grey' },
 
         ...(props.sameDiffStrike === 'same' || props.isAll==='all' ? columns_show : '')
@@ -85,44 +88,6 @@ export default function OptionIntradayMultiStrikeLayout(props) {
             <TableContainer className='mt-1' style={{ position: 'fixed', paddingRight: '20px' }}>
                 <Table stickyHeader aria-label="sticky table">
                     <TableHead>
-                        {/* <TableRow >
-                            <TableCell align="center" colSpan={1} sx={{
-                                padding: "2px 2px",
-                                border: "1px solid grey",
-                                backgroundColor: "#cc99ff",
-                                fontWeight: "bold",
-                                color: "white"
-                            }}>
-
-                            </TableCell>
-                            <TableCell align="center" colSpan={4} sx={{
-                                padding: "2px 2px",
-                                border: "1px solid grey",
-                                backgroundColor: "#c00000",
-                                fontWeight: "bold",
-                                color: "white"
-                            }}>
-                                CE
-                            </TableCell>
-                            <TableCell align="center" width={10} colSpan={4} sx={{
-                                padding: "2px 2px",
-                                border: "1px solid grey",
-                                fontWeight: "bold",
-                                backgroundColor: "#008000",
-                                color: "white",
-                            }}>
-                                PE
-                            </TableCell>
-                            <TableCell align="center" colSpan={4} sx={{
-                                padding: "2px 2px",
-                                border: "1px solid grey",
-                                fontWeight: "bold",
-                                backgroundColor: "#c0004e",
-                                color: "white"
-                            }}>
-                                CE & PE Combined
-                            </TableCell>
-                        </TableRow> */}
                         <TableRow>
                             {main_header_columns.map((column) => (
                                 hiddenColumns.includes(column.id) ? null : (
@@ -136,12 +101,9 @@ export default function OptionIntradayMultiStrikeLayout(props) {
                                             borderBottom: column.bottom,
                                             borderLeft: column.left,
                                             borderRight: column.right,
-                                            // borderBottom: "1px solid #ffff66 ",
-                                            // border: column.id !== 'strike' ? "1px solid grey" : '',
                                             fontWeight: "bold",
                                             backgroundColor: column.color,
                                             color: "white"
-
                                         }}
                                     >
                                         {column.id !== 'strike' ? column.label : ''}
@@ -162,8 +124,6 @@ export default function OptionIntradayMultiStrikeLayout(props) {
                                             borderBottom: column.bottom,
                                             borderLeft: column.left,
                                             borderRight: column.right,
-                                            // borderBottom: "1px solid #ffff66 ",
-                                            // border: column.id !== 'strike' ? "1px solid grey" : '',
                                             fontWeight: "bold",
                                             backgroundColor: column.color,
                                         }}
@@ -185,10 +145,8 @@ export default function OptionIntradayMultiStrikeLayout(props) {
                                             borderBottom: column.bottom,
                                             borderLeft: column.left,
                                             borderRight: column.right,
-                                            // border: column.id !== 'strike_price' ? "1px solid grey" : '',
                                             fontWeight: "bold",
                                             backgroundColor: column.color,
-                                            // align: 'center'
                                         }}
                                     >
                                         {column.label}
@@ -209,12 +167,9 @@ export default function OptionIntradayMultiStrikeLayout(props) {
                                                         padding: "0px 0px",
                                                         border: "1px solid #e0e0dc",
                                                         height: '35px',
-
-                                                        // backgroundColor: column.id === 'ce_build_up' ? row.ce_color : column.id === 'pe_build_up' ? row.pe_color : '',
-                                                        backgroundColor: row.ce_moneyness === 'ITM' && column.parent === 'ce' ? '#e7e6e6' : row.pe_moneyness === 'ITM' && column.parent === 'pe' ? '#e7e6e6' : '',
-                                                        color: column.id === 'ce_changein_open_interest' && value > 0 ? "#ff0000" : column.id === 'ce_changein_open_interest' && value < 0 ? '#00cc00' : column.id === 'pe_changein_open_interest' && value > 0 ? '#00cc00' : column.id === 'pe_changein_open_interest' && value < 0 ? '#ff0000' : column.label === 'LTP Change' && value > 0 ? '#00cc00' : column.label === 'LTP Change' && value < 0 ? '#ff0000' : ''
-                                                    }}><div style={column.id === 'ce_build_up' ? { backgroundColor: row.ce_color } : column.id === 'pe_build_up' ? { backgroundColor: row.pe_color } : { backgroundColor: '' }} > {value}</div>
-
+                                                        color: column.id === 'ce_oi_chg_combined' ? row.ce_oi_chg_color : column.id === 'pe_oi_chg_combined' ? row.pe_oi_chg_color : column.id === 'ce_oi_chg_with_previous_day_combined' ? row.ce_oi_chg_color_previous_day : column.id === 'pe_oi_chg_with_previous_day_combined' ? row.pe_oi_chg_color_previous_day : ''
+                                                    }}>
+                                                        {value}
                                                     </TableCell>)
                                             );
                                         })}
