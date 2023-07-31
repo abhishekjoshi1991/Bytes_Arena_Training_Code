@@ -3,9 +3,14 @@ import { Multiselect } from 'multiselect-react-dropdown';
 import { Toggle } from 'rsuite';
 import Checkbox from '@mui/material/Checkbox';
 import './css/toggle.css'
+import FormControl from '@mui/material/FormControl';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
 
 import { MultiSelect } from "react-multi-select-component";
-
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -19,6 +24,7 @@ import {
 
 import { Line } from 'react-chartjs-2';
 
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -30,6 +36,13 @@ ChartJS.register(
 );
 
 const line_options = {
+  scales: {
+    x: {
+      grid: {
+        display: false
+      }
+    }
+  },
   responsive: true,
   interaction: {
     mode: 'index',
@@ -48,31 +61,41 @@ const line_options = {
 };
 
 export default function MultiStrikeOIChart() {
-
   const [expiryDateData, setExpiryDateData] = useState([])
+  const [selectedExpiry, setSelectedExpiry] = useState([])
   const [symbolData, setSymbolData] = useState([])
-  // const [labelData, setLabelData] = useState([])
   const [dataset, setDataSet] = useState([])
   const [selectedValue, setSelectedValue] = useState([]);
-  const [checkedCumulativeExpiry, setCheckedCumulativeExpiry] = useState(false);
-  const [checkedCumulativeStrike, setCheckedCumulativeStrike] = useState(false);
-  // const [checkedTwo, setCheckedTwo] = useState(false);
   const [options, setOptions] = useState([])
-  const [oiChecked, setOiChecked] = useState(true)
-  const [oiChangeChecked, setOiChangeChecked] = useState(false)
-  const [selectedExpiry, setSelectedExpiry] = useState([])
-  const [checkedRedGreen, setCheckedRedGreen] = useState(false)
-  const [checkedGreenRed, setCheckedGreenRed] = useState(false)
+  const [OIToggle, setOIToggle] = useState('oi')
+  const [strikeBoolean, setStrikeBoolean] = useState('ind')
+  const [atmStrike, setATMStrike] = useState('')
+
 
   async function api_call() {
-    const res = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/multi_strike_line_chart')
-
-    const result = await res.json()
-    if (result) {
-      setExpiryDateData(result)
-    }
     const symbol = ["NIFTY"]
     setSymbolData(symbol)
+
+    const request_api = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/multi_strike_line_chart')
+    const result_api = await request_api.json()
+
+    if (result_api) {
+      setExpiryDateData(result_api)
+      setSelectedExpiry([result_api[0]])
+      const request_strike_price = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/get_strike_price', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 'expiry': [result_api[0]['label']] })
+      })
+      const result_strike_price = await request_strike_price.json()
+      if (result_strike_price) {
+        setOptions(result_strike_price['strike_price_list'])
+        setATMStrike(result_strike_price['atm_strike'])
+        setSelectedValue(result_strike_price['atm_strike_data'])
+      }
+    }
   }
 
   useEffect(() => {
@@ -81,27 +104,41 @@ export default function MultiStrikeOIChart() {
 
   // function for getting strike prices based on expiry date selected
   async function expiryHandler(e) {
-    console.log(e)
-    setSelectedExpiry(e)
-
-    const exp_array = e.map(myFunction)
-
-    function myFunction(value) {
-      return value['label'];
+    setSelectedValue([])
+    if (e.length === 0) {
+      setSelectedExpiry([expiryDateData[0]])
+      const request_strike = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/get_strike_price', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 'expiry': [expiryDateData[0]['label']] })
+      })
+      const result_strike = await request_strike.json()
+      if (result_strike) {
+        setOptions(result_strike['strike_price_list'])
+      }
     }
-    // console.log(selectedExpiry)
+    else {
+      setSelectedExpiry(e)
+      const exp_array = e.map(myFunction)
 
-    const res1 = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/get_strike_price', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      // body: JSON.stringify(e.target.value)
-      body: JSON.stringify({'expiry': exp_array})
-    })
-    const result1 = await res1.json()
-    if (result1) {
-      setOptions(result1)
+      function myFunction(value) {
+        return value['label'];
+      }
+
+      const request_strike = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/get_strike_price', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        // body: JSON.stringify(e.target.value)
+        body: JSON.stringify({ 'expiry': exp_array })
+      })
+      const result_strike = await request_strike.json()
+      if (result_strike) {
+        setOptions(result_strike['strike_price_list'])
+      }
     }
   }
 
@@ -114,79 +151,61 @@ export default function MultiStrikeOIChart() {
     setSelectedValue(e.map((x) => x.Strike))
   };
 
-  // handlers for geting cumulative checkboxes value
-  const handleCumulativeExpiry = () => {
-    setCheckedCumulativeExpiry(!checkedCumulativeExpiry);
-  };
-  const handleCumulativeStrike = () => {
-    setCheckedCumulativeStrike(!checkedCumulativeStrike);
-  };
-
-  // handlers for geting cumulative checkboxes value for color choices
-  const handleRedGreen = () => {
-    setCheckedRedGreen(!checkedRedGreen);
-    setCheckedGreenRed(false);
-  };
-  const handleGreenRed = () => {
-    setCheckedGreenRed(!checkedGreenRed);
-    setCheckedRedGreen(false);
-  };
-
-  // toggle to handle oi and oi change
-  const toggleHandle = (e) => {
-    if (e === false) {
-      setOiChecked(false)
-      setOiChangeChecked(true)
+  const strikeHandle = (e) => {
+    if (e.length > 10) {
+      alert('Please select upto 10 strikes only!')
     }
-    if (e === true) {
-      setOiChecked(true)
-      setOiChangeChecked(false)
+    else {
+      setSelectedValue(e)
+    }
+  }
+
+  const handleOIToggle = (event, value) => {
+    if (value !== null) {
+      setOIToggle(value);
     }
   };
 
+  const handleIndividualAllStrike = (event, value) => {
+    setStrikeBoolean(value)
+  }
 
   // form submit handler
   async function selectHandler(e) {
-    // console.log(oiChecked)
-    // console.log(oiChangeChecked)
+    if (selectedValue.length === 0) {
+      alert('Please Select the Strike')
+    }
     e.preventDefault();
     const form = e.target;
     const formData = new FormData(form);
-    console.log(formData)
 
     const expiries = selectedExpiry.map(expFunction)
-
+    const strikes = selectedValue.map(expFunction)
     function expFunction(value) {
       return value['label'];
     }
 
     const formJson = Object.fromEntries(formData.entries());
-    const data = {
-      // expiry: formJson['expiry'],
-      expiry: expiries,
-      symbol: formJson['symbol'],
-      // OI : checkedOne,
-      // OICHG : checkedTwo,
-      redgreen: checkedRedGreen,
-      greenred: checkedGreenRed,
-      cumexp: checkedCumulativeExpiry,
-      cumstrike: checkedCumulativeStrike,
-      OI: oiChecked,
-      OICHG: oiChangeChecked,
-      strikes: selectedValue
-    }
-    console.log('data', data)
-    console.log('rg', checkedRedGreen)
 
-    if (checkedCumulativeExpiry || checkedCumulativeStrike) {
-      console.log('something is true')
-      var api_link = 'http://127.0.0.1:7010/tradeapp/api/v1/option_chain/cumulative_oi_chart'
+    const data = {
+      symbol: formJson['symbol'],
+      expiry: expiries,
+      strike: strikes,
+      individual_or_all_strike: formJson['individual_or_all_strike'],
+      oi_or_oi_change: OIToggle,
     }
-    else {
-      var api_link = 'http://127.0.0.1:7010/tradeapp/api/v1/option_chain/multi_strike_line_chart'
-      console.log('all false')
-    }
-    const res2 = await fetch(api_link, {
+    console.log(data)
+
+
+    // if (checkedCumulativeExpiry || checkedCumulativeStrike) {
+    //   console.log('something is true')
+    //   var api_link = 'http://127.0.0.1:7010/tradeapp/api/v1/option_chain/cumulative_oi_chart'
+    // }
+    // else {
+    //   var api_link = 'http://127.0.0.1:7010/tradeapp/api/v1/option_chain/multi_strike_line_chart'
+    //   console.log('all false')
+    // }
+    const request_api = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/multi_strike_line_chart', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -194,12 +213,11 @@ export default function MultiStrikeOIChart() {
       body: JSON.stringify(data)
     })
 
-    const api_result = await res2.json()
-    if (api_result) {
-      setDataSet(api_result)
+    const result_api = await request_api.json()
+    if (result_api) {
+      setDataSet(result_api)
     }
   }
-
 
   const lineData =
   {
@@ -208,37 +226,17 @@ export default function MultiStrikeOIChart() {
   }
 
   return (
-    <div className="mt-1">
-      <h3 className='mb-4'>Multi Strike Line Chart</h3>
+    <div className="mt-2 ">
+      <h4 className='text-center'>Intraday OI Chart</h4>
 
-      {/* top row */}
-      <div className='row'>
-        <div className='col-md-2'></div>
-        <div className='col-md-2' style={{ marginLeft: '35px' }}><label>Cumulative Expiry</label>
-          <Checkbox
-            label="Value 1"
-            value={checkedCumulativeExpiry}
-            onChange={handleCumulativeExpiry}
-          /></div>
-        <div className='col-md-2' style={{ marginLeft: '85px' }}><label>Cumulative Strikes</label>
-          <Checkbox
-            label="Value 1"
-            value={checkedCumulativeStrike}
-            onChange={handleCumulativeStrike}
-          />  </div>
-        <div className='col-md-1'></div>
-      </div>
-
-      {/* second row */}
       <form method="post" onSubmit={selectHandler}>
-        <div className="row mb-5">
-          <div style={{ width: '70px' }} className='mt-1'> <strong>Symbol</strong> </div>
-          <div className="col-md-1">
+        <div className="row">
+          <div style={{ width: '5rem' }} className='mt-2'> <strong>Symbol</strong> </div>
+          <div className="col-md-1 mt-2">
             <select
               className="form-control"
               name="symbol"
             >
-              {/* <option defaultValue>Select</option> */}
               {symbolData.map((item, index) => (
                 <option key={index} value={item}>
                   {item}
@@ -247,84 +245,87 @@ export default function MultiStrikeOIChart() {
             </select>
           </div>
 
-
-          <div style={{ width: '115px' }} className='mt-1'> <strong>Expiry Date</strong> </div>
-          <div className="col-md-2">
+          <div style={{ width: '7.5rem' }} className='mt-2'> <strong>Expiry Date</strong> </div>
+          <div className="col-md-2 mt-2">
             <MultiSelect
               options={expiryDateData}
               value={selectedExpiry}
               onChange={expiryHandler}
               labelledBy={"Select"}
             />
-
           </div>
+          
+          <div style={{ width: '12rem' }} className='col-md-2'>
+            <FormControl>
+              <RadioGroup
+                aria-labelledby="individual_or_all_strike-label"
+                name="individual_or_all_strike"
+                value={strikeBoolean}
+                onChange={handleIndividualAllStrike}
+              >
+                <FormControlLabel value="ind" control={<Radio sx={{
+                  '& .MuiSvgIcon-root': {
+                    fontSize: 16,
+                  },
+                }} />} label="Individual Strike" />
+                <FormControlLabel value="all" control={<Radio sx={{
+                  '& .MuiSvgIcon-root': {
+                    fontSize: 16,
+                  },
+                }} />} label="All Strike" />
 
-          {/* <div style={{width:'85px'}}> <strong>Expiry Multi</strong> </div>
-          <div className="col-md-2">
-            <Multiselect
-              options={expiryDateData}
-              displayValue='Exp'
-              placeholder='Select Expiry Dates'
-              hidePlaceholder={true}
-              // onSelect={selectExpiryHandle}
-              // onRemove={removeExpiryHandle}
-              onChange={expiryHandler}
-              showCheckbox={true}
-              closeIcon="cancel"
-              // emptyRecordMsg='Select Expiry Date First'
-            />
-          </div> */}
-
+              </RadioGroup>
+            </FormControl>
+          </div>
+          
           {/* section for strike price */}
-          <div style={{ width: '85px' }}> <strong>Selected Strikes</strong> </div>
-          <div className="col-md-2">
-            <Multiselect
-              options={options}
-              displayValue='Strike'
-              placeholder='Select Strike Price'
-              hidePlaceholder={true}
-              onSelect={selectStrikeHandle}
-              onRemove={removeStrikeHandle}
-              showCheckbox={true}
-              closeIcon="cancel"
-              emptyRecordMsg='Select Expiry Date First'
-            />
-          </div>
-
-          {/* <div style={{ width: '200px' }} className="col-md-2">
-            <label>Plot Cumulative</label>
-            <Checkbox
-              label="Value 1"
-              value={checkedCumulative}
-              onChange={handleChangeOne}
-            />
-          </div> */}
-
-          {/* section for color choice for call and put */}
-          {/* {(checkedCumulativeExpiry === true || checkedCumulativeStrike === true) ? <div style={{ width: '130px' }} className="col-md-1">
-            <label style={{ color: 'red' }}>Call,</label> <label style={{ color: 'green' }}>Put</label>
-            <Checkbox
-              label="Value 1"
-              value={checkedRedGreen}
-              onChange={handleRedGreen}
-            />
-          </div> : ''}
-
-          {(checkedCumulativeExpiry === true || checkedCumulativeStrike === true) ?
-            <div style={{ width: '130px' }} className="col-md-1">
-              <label style={{ color: 'green' }}>Call,</label> <label style={{ color: 'red' }}>Put</label>
-              <Checkbox
-                label="Value 1"
-                value={checkedGreenRed}
-                onChange={handleGreenRed}
+          {strikeBoolean === 'ind' &&
+            <div style={{ width: '6rem' }} className='mt-2'> <strong>Selected Strikes</strong> </div>}
+          {strikeBoolean === 'ind' &&
+            // <div className="col-md-2 mt-2">
+            //   <Multiselect
+            //     options={options}
+            //     displayValue='Strike'
+            //     placeholder='Select Strike Price'
+            //     hidePlaceholder={true}
+            //     onSelect={selectStrikeHandle}
+            //     onRemove={removeStrikeHandle}
+            //     showCheckbox={true}
+            //     closeIcon="cancel"
+            //     selectionLimit={10}
+            //     emptyRecordMsg='Select Expiry Date First'
+            //     ref={multiselectRef}
+            //     // selectedValues={selectedValue} 
+            //   />
+            // </div>
+            <div className="col-md-2 mt-2">
+              <MultiSelect
+                options={options}
+                value={selectedValue}
+                onChange={strikeHandle}
+                labelledBy={"Select"}
+                hasSelectAll={false}
               />
-            </div> : ''} */}
+            </div>
+          }
 
-          <div style={{ width: '100px' }} className="col-md-1">
-            <Toggle arial-label="Switch" size="lg" checkedChildren="OI" unCheckedChildren="OICHG" onChange={toggleHandle} defaultChecked />
+          
+
+          <div style={{ width: '8rem' }} className="col-md-2 mt-2">
+            <ToggleButtonGroup
+              color="primary"
+              value={OIToggle}
+              exclusive
+              onChange={handleOIToggle}
+              aria-label="Platform"
+              size='small'
+            >
+              <ToggleButton value="oi"><strong className='mx-2' >OI</strong></ToggleButton>
+              <ToggleButton value="chg"><strong>OICHG</strong></ToggleButton>
+            </ToggleButtonGroup>
           </div>
 
-          {(checkedCumulativeExpiry === true || checkedCumulativeStrike === true) ?
+          {/* {(checkedCumulativeExpiry === true || checkedCumulativeStrike === true) ?
             <div className='col-md-2' style={{ width: '150px' }}>
               <div>
                 <input type="radio" name="color" value="redgreen" id="redgreen" onChange={handleRedGreen} />
@@ -334,10 +335,15 @@ export default function MultiStrikeOIChart() {
                 <input type="radio" name="color" value="greenred" id="greenred" onChange={handleGreenRed} />
                 <label htmlFor="greenred"><label style={{ color: 'green' }}>&nbsp;Call,</label> <label style={{ color: 'red' }}>Put</label></label>
               </div>
-            </div> : ''}
-          <div className="col-md-1"><button className="btn btn-info" type="submit">Submit</button></div>
+            </div> : ''} */}
+          <div className="col-md-1 mt-2"><button className="btn btn-info" type="submit">Submit</button></div>
+        </div>
+        {/* {allSelected === 'selected' && sameDifferentStrike === 'different' ? */}
+        <div>
+          <h6 style={{ fontSize: 14, fontStyle: 'italic' }}>Selected Expiries: {selectedExpiry.map(obj => obj['value']).join(', ')}</h6>
         </div>
       </form>
+
       <Line options={line_options} data={lineData} />
     </div>
   )

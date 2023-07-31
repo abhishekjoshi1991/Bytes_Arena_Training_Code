@@ -47,6 +47,7 @@ export default function OICombinedChart() {
         const request_expiry_date = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/oi_stats_chart')
 
         const result_expiry_dates = await request_expiry_date.json()
+        console.log(result_expiry_dates['expiry'][0])
         if (result_expiry_dates) {
             setExpiryDates(result_expiry_dates['expiry'])
             setSelectedExpiry([result_expiry_dates['expiry'][0]])

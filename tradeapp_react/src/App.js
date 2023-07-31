@@ -18,6 +18,8 @@ import OptionIntradayMultiStrike from "./components/OptionIntradayMultiStrike";
 import MyTable from "./components/demo";
 import OICombinedChart from "./components/OICombinedChart";
 import OIStackedBarChart from "./components/OIStackedBarChart";
+import OptionStrategyBuilder from "./components/OptionStrategyBuilder";
+
 
 function App() {
   return (
@@ -25,7 +27,7 @@ function App() {
       <Routes>
         <Route path="/co_po_chart" element={<CoPoBarChart />} />
         <Route path="/co_po_change_chart" element={<CoPoChangeBarChart />} />
-        <Route path="/multi_strike_chart" element={<MultiStrikeOIChart />} />
+        <Route path="/intraday_oi_chart" element={<MultiStrikeOIChart />} />
         <Route path="/cumulative_oi_chart" element={<CumulativeOIChange />} />
         <Route path="/max_pain_chart" element={<MaxPainChart/>} />
         <Route path="/max_pain_intraday_chart" element={<MaxPainIntradayChart/>} />
@@ -38,6 +40,7 @@ function App() {
         <Route path="/intraday_multi_strike_option" element={<OptionIntradayMultiStrike/>} />
         <Route path="/oi_stats_options" element={<OICombinedChart/>} />
         <Route path="/oi_stacked_chart" element={<OIStackedBarChart/>} />
+        <Route path="/options_strategy_builder" element={<OptionStrategyBuilder/>} />
         <Route path="/demo" element={<MyTable/>} />
       </Routes>
     </BrowserRouter>
