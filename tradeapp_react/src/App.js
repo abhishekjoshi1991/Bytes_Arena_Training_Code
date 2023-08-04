@@ -15,7 +15,7 @@ import OptionIntradaySingleStrike from "./components/OptionIntradaySingleStrike"
 import FutureIntradaySingleStrike from "./components/FutureIntradaySingleStrike";
 import OptionIntradayMultiStrike from "./components/OptionIntradayMultiStrike";
 
-import MyTable from "./components/demo";
+import ParentComponent from "./components/demo";
 import OICombinedChart from "./components/OICombinedChart";
 import OIStackedBarChart from "./components/OIStackedBarChart";
 import OptionStrategyBuilder from "./components/OptionStrategyBuilder";
@@ -41,7 +41,7 @@ function App() {
         <Route path="/oi_stats_options" element={<OICombinedChart/>} />
         <Route path="/oi_stacked_chart" element={<OIStackedBarChart/>} />
         <Route path="/options_strategy_builder" element={<OptionStrategyBuilder/>} />
-        <Route path="/demo" element={<MyTable/>} />
+        <Route path="/demo" element={<ParentComponent/>} />
       </Routes>
     </BrowserRouter>
     // <div className="App">

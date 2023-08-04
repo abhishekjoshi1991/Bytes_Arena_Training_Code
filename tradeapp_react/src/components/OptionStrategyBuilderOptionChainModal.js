@@ -28,18 +28,22 @@ const theme = createTheme({
     },
 });
 
-export default function OptionStrategyBuilderOptionChainModal() {
+export default function OptionStrategyBuilderOptionChainModal(props) {
     const [index, setIndex] = useState('NIFTY');
     const [optionExpiry, setOptionExpiry] = useState('');
     const [optionsExpiryDates, setOptionsExpiryDates] = useState([]);
     const [futureExpiryDates, setFutureExpiryDates] = useState([]);
     const [optionChainTable, setOptionChainTable] = useState([]);
     const [futureChainTable, setFutureChainTable] = useState([]);
+    const [optionStrikeList, setOptionStrikeList] = useState([]);
     const [modalOpen, setModalOpen] = useState(false)
     const [showActionId, setShowActionId] = useState(-1);
     const [optFutToggle, setOptFutToggle] = useState('opt');
     const [callSelectedOptions, setCallSelectedOptions] = useState([]);
     const [putSelectedOptions, setPutSelectedOptions] = useState([]);
+    const [futureSelectedOptions, setFutureSelectedOptions] = useState([]);
+    const [allExpiryStrikeList, setAllExpiryStrikeList] = useState([]);
+    const [atmstrike, setATMStrike] = useState([]);
 
     async function api_call() {
         const request_expiry = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/get_option_future_expiry')
@@ -53,9 +57,52 @@ export default function OptionStrategyBuilderOptionChainModal() {
         }
     }
 
+    // useEffect(() => {
+    //     api_call()
+    //     console.log('page reload called')
+    //     const merged_array = [...callSelectedOptions, ...putSelectedOptions, ...futureSelectedOptions]
+    //     console.log('merged_array', merged_array)
+    //     manage_position(merged_array)
+
+    // }, [callSelectedOptions, putSelectedOptions, futureSelectedOptions])
+
     useEffect(() => {
-        api_call()
-    }, [])
+        console.log('first use effecrt called')
+        api_call();
+    }, []);
+
+    useEffect(() => {
+        console.log('modal comp called', props.selectedOptions)
+        const updatedData = props.selectedOptions.map((row) => {
+            if (row.option_type === 'CE') {
+                console.log('call option found,' , row)
+              return { ...row };
+            }
+            return row;
+          });
+        //   setCallSelectedOptions(updatedData);
+    }, [props.selectedOptions]);
+
+    useEffect(() => {
+        console.log('second use effecrt called')
+
+        const merged_array = [...callSelectedOptions, ...putSelectedOptions, ...futureSelectedOptions];
+        // manage_position(merged_array).then((result) => {
+        props.handleDrawerCallback(merged_array)
+        // });
+    }, [callSelectedOptions, putSelectedOptions, futureSelectedOptions]);
+
+    async function manage_position(data) {
+        const request_position_add = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/manage_position', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        const response_position_add = await request_position_add.json()
+        return response_position_add
+    }
 
     async function get_option_chain_table(symbol, expiry, segment) {
         const data = {
@@ -72,9 +119,11 @@ export default function OptionStrategyBuilderOptionChainModal() {
         })
         const response_option_chain_table = await request_option_chain_table.json()
         if (response_option_chain_table) {
-            console.log('response_option_chain_table', response_option_chain_table)
             if (response_option_chain_table['option_chain'].length > 0) {
                 setOptionChainTable(response_option_chain_table['option_chain'])
+                setATMStrike(response_option_chain_table['atm_strike'])
+                setOptionStrikeList(response_option_chain_table['option_strikes'])
+                setAllExpiryStrikeList(response_option_chain_table['all_strikes'])
             }
             if (response_option_chain_table['future_chain'].length > 0) {
                 setFutureChainTable(response_option_chain_table['future_chain'])
@@ -103,7 +152,6 @@ export default function OptionStrategyBuilderOptionChainModal() {
         if (value !== null) {
             setOptFutToggle(value);
             if (futureChainTable.length === 0 || optionChainTable.length === 0) {
-                console.log('call apiiiiiiii')
                 get_option_chain_table(index, optionExpiry, value)
             }
         }
@@ -113,65 +161,154 @@ export default function OptionStrategyBuilderOptionChainModal() {
         setModalOpen(!modalOpen);
     }
 
-    const handleButtonSelect = (rowIndex, option, type, expiry) => {
-        console.log(rowIndex, option, type, expiry)
-
+    const handleButtonSelect = (id, rowIndex, option, type, expiry, strike, segment, entry_price, option_type, stock, expiryList, delta, gamma, theta, vega, int_val, ext_val, iv, strike_list, expiry_strike_list) => {
         if (type === 'call') {
             setCallSelectedOptions((prevSelectedOptions) => {
                 const updatedOptions = prevSelectedOptions.filter(
-                    (selectedOption) => !(selectedOption.index === rowIndex && selectedOption.expiry === expiry)
+                    (selectedOption) => !(selectedOption.index === rowIndex && selectedOption.expiry === expiry && selectedOption.segment === segment)
                 );
-                updatedOptions.push({ index: rowIndex, option, lot: 10, expiry: expiry });
+                updatedOptions.push({ row_id: id, index: rowIndex, option, lot: 1, expiry: expiry, strike: strike, strike_copy: strike, segment: segment, type: type, entry_price: entry_price, option_type: option_type, stock: stock, expiryList: expiryList, delta: delta, gamma: gamma, theta: theta, vega: vega, int_val: int_val, ext_val: ext_val, iv: iv, strike_list: strike_list, expiry_strike_list: expiry_strike_list });
                 return updatedOptions;
             });
         } else if (type === 'put') {
             setPutSelectedOptions((prevSelectedOptions) => {
                 const updatedOptions = prevSelectedOptions.filter(
-                    (selectedOption) => !(selectedOption.index === rowIndex && selectedOption.expiry === expiry)
+                    (selectedOption) => !(selectedOption.index === rowIndex && selectedOption.expiry === expiry && selectedOption.segment === segment)
                 );
-                updatedOptions.push({ index: rowIndex, option, lot: 10, expiry: expiry });
+                updatedOptions.push({ row_id: id, index: rowIndex, option, lot: 1, expiry: expiry, strike: strike, strike_copy: strike, segment: segment, type: type, entry_price: entry_price, option_type: option_type, stock: stock, expiryList: expiryList, delta: delta, gamma: gamma, theta: theta, vega: vega, int_val: int_val, ext_val: ext_val, iv: iv, strike_list: strike_list, expiry_strike_list: expiry_strike_list });
                 return updatedOptions;
             });
         }
     };
 
-    const handleButtonClick = (rowIndex, option, type, expiry) => {
+    const handleFutureButtonSelect = (id, rowIndex, option, segment, expiry, entry_price, stock, futExpList) => {
+        setFutureSelectedOptions((prevSelectedOptions) => {
+            const updatedOptions = prevSelectedOptions.filter(
+                (selectedOption) => !(selectedOption.index === rowIndex && selectedOption.expiry === expiry)
+            );
+            updatedOptions.push({ row_id: id, index: rowIndex, option: option, lot: 1, expiry: expiry, segment: segment, entry_price: entry_price, stock: stock, futExpList: futExpList });
+            return updatedOptions;
+        });
+    };
+
+    const handleButtonClick = (id, rowIndex, option, type, expiry, strike, segment, entry_price, stock, expiryList, delta, gamma, theta, vega, int_val, ext_val, iv, strike_list, expiry_strike_list) => {
         if (type === 'call') {
             const isSelected = callSelectedOptions.some(
-                (selectedOption) => selectedOption.index === rowIndex && selectedOption.option === option && selectedOption.expiry === expiry
+                (selectedOption) => selectedOption.index === rowIndex && selectedOption.option === option && selectedOption.expiry === expiry && selectedOption.segment === segment
             );
             if (isSelected) {
-                // handleButtonUnselect(rowIndex, option, type);
+                handleButtonUnselect(rowIndex, option, type, expiry);
             } else {
-                handleButtonSelect(rowIndex, option, type, expiry);
+                handleButtonSelect(id, rowIndex, option, type, expiry, strike, segment, entry_price, 'CE', stock, expiryList, delta, gamma, theta, vega, int_val, ext_val, iv, strike_list, expiry_strike_list);
             }
         } else if (type === 'put') {
             const isSelected = putSelectedOptions.some(
-                (selectedOption) => selectedOption.index === rowIndex && selectedOption.option === option && selectedOption.expiry === expiry
+                (selectedOption) => selectedOption.index === rowIndex && selectedOption.option === option && selectedOption.expiry === expiry && selectedOption.segment === segment
             );
 
             if (isSelected) {
-                // handleButtonUnselect(rowIndex, option, type);
+                handleButtonUnselect(rowIndex, option, type, expiry);
             } else {
-                handleButtonSelect(rowIndex, option, type, expiry);
+                handleButtonSelect(id, rowIndex, option, type, expiry, strike, segment, entry_price, 'PE', stock, expiryList, delta, gamma, theta, vega, int_val, ext_val, iv, strike_list, expiry_strike_list);
             }
         }
     }
 
+    const handleFutureButtonClick = (id, rowIndex, option, segment, expiry, entry_price, stock, futExpList) => {
+        const isSelected = futureSelectedOptions.some(
+            (selectedOption) => selectedOption.index === rowIndex && selectedOption.option === option && selectedOption.expiry === expiry
+        );
+        if (isSelected) {
+            handleFutureButtonUnselect(rowIndex, option, segment, expiry);
+        } else {
+            handleFutureButtonSelect(id, rowIndex, option, segment, expiry, entry_price, stock, futExpList);
+        }
+    }
+
+    const handleFutureButtonUnselect = (rowIndex, option, segment, expiry) => {
+        setFutureSelectedOptions((prevSelectedOptions) => {
+            const updatedOptions = prevSelectedOptions.filter(
+                (selectedOption) => !(selectedOption.index === rowIndex && selectedOption.expiry === expiry)
+            );
+            return updatedOptions;
+        });
+    };
+
+    const handleButtonUnselect = (rowIndex, option, type, expiry) => {
+        if (type === 'call') {
+            setCallSelectedOptions((prevSelectedOptions) => {
+                const updatedOptions = prevSelectedOptions.filter(
+                    (selectedOption) => !(selectedOption.index === rowIndex && selectedOption.option === option && selectedOption.expiry === expiry)
+                );
+                return updatedOptions;
+            });
+        } else if (type === 'put') {
+            setPutSelectedOptions((prevSelectedOptions) => {
+                const updatedOptions = prevSelectedOptions.filter(
+                    (selectedOption) => !(selectedOption.index === rowIndex && selectedOption.option === option && selectedOption.expiry === expiry)
+                );
+                return updatedOptions;
+            });
+        }
+    };
+
+    const handleNumberChange = (rowIndex, value, type, expiry) => {
+        if (type === 'call') {
+            setCallSelectedOptions((prevSelectedOptions) => {
+                const updatedOptions = prevSelectedOptions.map((selectedOption) => {
+                    if (selectedOption.index === rowIndex && selectedOption.expiry === expiry) {
+                        return { ...selectedOption, lot: value };
+                    }
+                    return selectedOption;
+                });
+                return updatedOptions;
+            });
+        } else if (type === 'put') {
+            setPutSelectedOptions((prevSelectedOptions) => {
+                const updatedOptions = prevSelectedOptions.map((selectedOption) => {
+                    if (selectedOption.index === rowIndex && selectedOption.expiry === expiry) {
+                        return { ...selectedOption, lot: value };
+                    }
+                    return selectedOption;
+                });
+                return updatedOptions;
+            });
+        }
+    };
+
+    const handleFutureNumberChange = (rowIndex, value, segment, expiry) => {
+        setFutureSelectedOptions((prevSelectedOptions) => {
+            const updatedOptions = prevSelectedOptions.map((selectedOption) => {
+                if (selectedOption.index === rowIndex && selectedOption.expiry === expiry) {
+                    return { ...selectedOption, lot: value };
+                }
+                return selectedOption;
+            });
+            return updatedOptions;
+        });
+    };
+
     const isOptionSelected = (rowIndex, option, type, expiry) => {
         if (type === 'call') {
             return callSelectedOptions.some(
-                (selectedOption) => selectedOption.index === rowIndex && selectedOption.option === option
+                (selectedOption) => selectedOption.index === rowIndex && selectedOption.option === option && selectedOption.expiry === expiry
             );
         } else if (type === 'put') {
             return putSelectedOptions.some(
-                (selectedOption) => selectedOption.index === rowIndex && selectedOption.option === option
+                (selectedOption) => selectedOption.index === rowIndex && selectedOption.option === option && selectedOption.expiry === expiry
             );
         }
         return false;
     };
 
-    console.log(callSelectedOptions)
+
+    const isFutureSelected = (rowIndex, option, segment, expiry) => {
+        return futureSelectedOptions.some(
+            (selectedOption) => selectedOption.index === rowIndex && selectedOption.option === option && selectedOption.expiry === expiry
+        );
+    };
+
+
 
     // const style = {
     //     position: 'absolute',
@@ -294,18 +431,10 @@ export default function OptionStrategyBuilderOptionChainModal() {
                                 <TableCell
                                     key={column.id}
                                     align='center'
-                                    // style={{ maxWidth: column.minWidth }}
                                     style={{ minWidth: column.minWidth, fontSize: 12 }}
                                     sx={{
                                         padding: "2px 2px",
-                                        // border: column.id !== 'strike_price' ? "1px solid grey" : '',
-                                        // borderTop: column.top,
-                                        // borderBottom: column.bottom,
-                                        // borderLeft: column.left,
-                                        // borderRight: column.right,
                                         fontWeight: "bold",
-                                        // width: 150,
-                                        // align: 'center'
                                     }}
                                 >
                                     {column.label}
@@ -313,101 +442,206 @@ export default function OptionStrategyBuilderOptionChainModal() {
                             )}
                         </TableRow>
                     </TableHead>
-                    <TableBody>
-                        {(optFutToggle === 'opt' ? optionChainTable : futureChainTable)
-                            .map((row, rowIndex) => {
-                                return (
-                                    <TableRow hover role="checkbox" tabIndex={-1} key={row.ce_id} 
-                                    onMouseEnter={() => {
-                                        setShowActionId(row.ce_id);
-                                    }}
-                                        onMouseLeave={() => setShowActionId(-1)}>
-                                        {columns.map((column) => {
-                                            const value = row[column.id];
-                                            return (
+                    {optFutToggle === 'opt' ?
+                        <TableBody>
+                            {optionChainTable
+                                .map((row, rowIndex) => {
+                                    return (
+                                        <TableRow hover role="checkbox" tabIndex={-1} key={row.ce_id}
+                                            onMouseEnter={() => {
+                                                setShowActionId(row.ce_id);
+                                            }}
+                                            onMouseLeave={() => setShowActionId(-1)}>
+                                            {columns.map((column) => {
+                                                const value = row[column.id];
+                                                return (
 
-                                                <TableCell key={column.id} align='center' size='small'
-                                                    style={{ fontSize: 11 }}
-                                                    sx={{
-                                                        padding: "0px 0px",
-                                                        // border: "1px solid #F8F8F8",
-                                                        height: '35px',
-                                                        // backgroundColor: row.ce_moneyness === 'ITM' && column.parent === 'ce' ? '#e7e6e6' : row.pe_moneyness === 'ITM' && column.parent === 'pe' ? '#e7e6e6' : row.ce_moneyness === 'ATM' || column.id === 'strike_price' ? '#f7f7a3' : '',
-                                                        // backgroundColor: row.strike_price < atmstrike && column.parent === 'ce' ? '#e7e6e6' : row.strike_price > atmstrike && column.parent === 'pe' ? '#e7e6e6' : row.strike_price === atmstrike || column.id === 'strike_price' ? '#f7f7a3' : '',
-                                                        // color: column.id === 'ce_oi_chg_combined' ? row.ce_oi_chg_color : column.id === 'pe_oi_chg_combined' ? row.pe_oi_chg_color : column.id === 'ce_ltp_chg_combined' ? row.ce_ltp_chg_color : column.id === 'pe_ltp_chg_combined' ? row.pe_ltp_chg_color : ''
-                                                    }}>
-                                                    <div className='m-1 rounded' style={column.id === 'ce_build_up' ? { backgroundColor: row.ce_color } : column.id === 'pe_build_up' ? { backgroundColor: row.pe_color } : { backgroundColor: '' }} >
-                                                        {/* {value} */}
-                                                        {column.id === 'ce_oi_bar' ? '' : column.id === 'pe_oi_bar' ? '' : (column.id === 'ce_action') ? (row.ce_id === showActionId ?
-                                                            <div >
-                                                                <Button
-                                                                    variant={isOptionSelected(rowIndex, 'buy', 'call', optionExpiry) ? 'contained' : 'outlined'}
-                                                                    color='success'
-                                                                    style={{ maxWidth: '20px', maxHeight: '20px', minWidth: '20px', minHeight: '20px', marginRight: '1px' }}
-                                                                    onClick={() => handleButtonClick(rowIndex, 'buy', 'call', optionExpiry)}
-                                                                >
-                                                                    B
-                                                                </Button>
-                                                                <Button
-                                                                    variant='outlined'
-                                                                    color='error'
-                                                                    style={{ maxWidth: '20px', maxHeight: '20px', minWidth: '20px', minHeight: '20px' }}
-                                                                    onClick={() => handleButtonClick(rowIndex, 'sell', 'call', optionExpiry)}
-                                                                >
-                                                                    S
-                                                                </Button>
-                                                            </div> : '') : (column.id === 'pe_action') ? (row.ce_id === showActionId ?
+                                                    <TableCell key={column.id} align='center' size='small'
+                                                        style={{ fontSize: 11 }}
+                                                        sx={{
+                                                            padding: "0px 0px",
+                                                            height: '35px',
+                                                            backgroundColor: row.strike_price < atmstrike && column.parent === 'ce' ? '#e7e6e6' : row.strike_price > atmstrike && column.parent === 'pe' ? '#e7e6e6' : row.strike_price === atmstrike || column.id === 'strike_price' ? '#f7f7a3' : '',
+                                                        }}>
+                                                        <div className='m-1 rounded' style={column.id === 'ce_build_up' ? { backgroundColor: row.ce_color } : column.id === 'pe_build_up' ? { backgroundColor: row.pe_color } : { backgroundColor: '' }} >
+                                                            {/* {value} */}
+                                                            {column.id === 'ce_oi_bar' ? '' : column.id === 'pe_oi_bar' ? '' : (column.id === 'ce_action') ? (
                                                                 <div >
                                                                     <Button
-                                                                        variant='contained'
+                                                                        variant={isOptionSelected(rowIndex, 'BUY', 'call', optionExpiry) ? 'contained' : 'outlined'}
                                                                         color='success'
                                                                         style={{ maxWidth: '20px', maxHeight: '20px', minWidth: '20px', minHeight: '20px', marginRight: '1px' }}
-                                                                    // onClick={() => handleButtonClick(rowIndex, 'sell', 'right')}
+                                                                        onClick={() => handleButtonClick(row.id, rowIndex, 'BUY', 'call', optionExpiry, row.strike_price, optFutToggle, row.ce_last_price, index, optionsExpiryDates.map((entry) => entry.exp), row.ce_delta, row.ce_gamma, row.ce_theta, row.ce_vega, row.ce_intrinsic_value, row.ce_time_value, row.ce_iv_calculated, optionStrikeList, allExpiryStrikeList)}
                                                                     >
                                                                         B
                                                                     </Button>
                                                                     <Button
-                                                                        variant='contained'
+                                                                        variant={isOptionSelected(rowIndex, 'SELL', 'call', optionExpiry) ? 'contained' : 'outlined'}
                                                                         color='error'
                                                                         style={{ maxWidth: '20px', maxHeight: '20px', minWidth: '20px', minHeight: '20px' }}
-                                                                    // onClick={() => handleButtonClick(rowIndex, 'sell', 'right')}
+                                                                        onClick={() => handleButtonClick(row.id, rowIndex, 'SELL', 'call', optionExpiry, row.strike_price, optFutToggle, row.ce_last_price, index, optionsExpiryDates.map((entry) => entry.exp), row.ce_delta, row.ce_gamma, row.ce_theta, row.ce_vega, row.ce_intrinsic_value, row.ce_time_value, row.ce_iv_calculated, optionStrikeList, allExpiryStrikeList)}
                                                                     >
                                                                         S
                                                                     </Button>
-                                                                </div> : '') : value}
-
-                                                        {/* {lotorqty === 'qty' && (column.id === 'ce_open_interest' || column.id === 'ce_changein_open_interest' || column.id === 'ce_total_traded_volume' || column.id === 'pe_open_interest' || column.id === 'pe_changein_open_interest' || column.id === 'pe_total_traded_volume') ? value * 50 : (row.ce_not_traded === true && column.show_ce_dash === true) ? '-' : (row.pe_not_traded === true && column.show_pe_dash === true) ? '-' : (row.ce_total_traded_volume === 0 && column.show_ce_not_traded_dash === true) ? '-' : (row.pe_total_traded_volume === 0 && column.show_pe_not_traded_dash === true) ? '-' : (row.ce_open_interest === 0 && column.show_ce_oi_greater_zero === true) ? '-' : (row.pe_open_interest === 0 && column.show_pe_oi_greater_zero === true) ? '-' : column.id == 'ce_oi_bar' ? '' : column.id === 'pe_oi_bar' ? '' : value} */}
-
-                                                    </div>
-                                                    {(column.id === 'ce_oi_bar' || column.id === 'pe_oi_bar') &&
-                                                        <div>
-                                                            <ThemeProvider theme={theme}>
-                                                                <div style={{ position: 'relative' }}>
-                                                                    <div style={{ position: 'absolute', width: '100%', height: '100%', zIndex: '1' }} > {column.id === 'ce_oi_bar' ? row['ce_open_interest'] : row['pe_open_interest']} </div>
-                                                                    <div style={{ zIndex: '1', opacity: '0.5' }}>
-                                                                        <LinearProgress
-                                                                            color={column.id === 'ce_oi_bar' ? 'color_ce' : 'color_pe'}
-                                                                            sx={{
-                                                                                'height': 20,
-                                                                                background: 'transparent',
-                                                                                transform: column.id === 'ce_oi_bar' && 'rotate(180deg)',
-                                                                                '& .MuiLinearProgress-bar': {
-                                                                                    transform: 'rotate(180deg)',
+                                                                    {isOptionSelected(rowIndex, 'BUY', 'call', optionExpiry) || isOptionSelected(rowIndex, 'SELL', 'call', optionExpiry) ? (
+                                                                        <div className='mt-2 mb-2'>
+                                                                            <strong>Lot: &nbsp;</strong>
+                                                                            <Select
+                                                                                sx={{ fontSize: '10px' }}
+                                                                                value={
+                                                                                    callSelectedOptions.find((selectedOption) => selectedOption.index === rowIndex && selectedOption.expiry === optionExpiry)
+                                                                                        ?.lot || 1
                                                                                 }
-                                                                            }}
-                                                                            variant="determinate"
-                                                                            value={value}
-                                                                        />
+                                                                                style={{ maxWidth: '70px', maxHeight: '20px', minWidth: '70px', minHeight: '20px' }}
+                                                                                onChange={(e) => handleNumberChange(rowIndex, e.target.value, 'call', optionExpiry)}
+                                                                            >
+                                                                                {Array.from({ length: 150 }, (_, index) => index + 1).map((number) => (
+                                                                                    <MenuItem key={number} value={number} sx={{ fontSize: '10px' }}>
+                                                                                        {number}
+                                                                                    </MenuItem>
+                                                                                ))}
+                                                                            </Select>
+                                                                        </div>
+                                                                    ) : null}
+                                                                </div>) : (column.id === 'pe_action') ? (
+                                                                    <div >
+                                                                        <Button
+                                                                            variant={isOptionSelected(rowIndex, 'BUY', 'put', optionExpiry) ? 'contained' : 'outlined'}
+                                                                            color='success'
+                                                                            style={{ maxWidth: '20px', maxHeight: '20px', minWidth: '20px', minHeight: '20px', marginRight: '1px' }}
+                                                                            onClick={() => handleButtonClick(row.id, rowIndex, 'BUY', 'put', optionExpiry, row.strike_price, optFutToggle, row.pe_last_price, index, optionsExpiryDates.map((entry) => entry.exp), row.pe_delta, row.pe_gamma, row.pe_theta, row.pe_vega, row.pe_intrinsic_value, row.pe_time_value, row.pe_iv_calculated, optionStrikeList, allExpiryStrikeList)}
+                                                                        >
+                                                                            B
+                                                                        </Button>
+                                                                        <Button
+                                                                            variant={isOptionSelected(rowIndex, 'SELL', 'put', optionExpiry) ? 'contained' : 'outlined'}
+                                                                            color='error'
+                                                                            style={{ maxWidth: '20px', maxHeight: '20px', minWidth: '20px', minHeight: '20px' }}
+                                                                            onClick={() => handleButtonClick(row.id, rowIndex, 'SELL', 'put', optionExpiry, row.strike_price, optFutToggle, row.pe_last_price, index, optionsExpiryDates.map((entry) => entry.exp), row.pe_delta, row.pe_gamma, row.pe_theta, row.pe_vega, row.pe_intrinsic_value, row.pe_time_value, row.pe_iv_calculated, optionStrikeList, allExpiryStrikeList)}
+                                                                        >
+                                                                            S
+                                                                        </Button>
+                                                                        {isOptionSelected(rowIndex, 'BUY', 'put', optionExpiry) || isOptionSelected(rowIndex, 'SELL', 'put', optionExpiry) ? (
+                                                                            <div className='mt-2 mb-2'>
+                                                                                <strong>Lot: &nbsp;</strong>
+                                                                                <Select
+                                                                                    sx={{ fontSize: '10px' }}
+                                                                                    value={
+                                                                                        putSelectedOptions.find((selectedOption) => selectedOption.index === rowIndex && selectedOption.expiry === optionExpiry)
+                                                                                            ?.lot || 1
+                                                                                    }
+                                                                                    style={{ maxWidth: '70px', maxHeight: '20px', minWidth: '70px', minHeight: '20px' }}
+                                                                                    onChange={(e) => handleNumberChange(rowIndex, e.target.value, 'put', optionExpiry)}
+                                                                                >
+                                                                                    {Array.from({ length: 150 }, (_, index) => index + 1).map((number) => (
+                                                                                        <MenuItem key={number} value={number} sx={{ fontSize: '10px' }}>
+                                                                                            {number}
+                                                                                        </MenuItem>
+                                                                                    ))}
+                                                                                </Select>
+                                                                            </div>
+                                                                        ) : null}
+                                                                    </div>) : value}
+
+                                                            {/* {lotorqty === 'qty' && (column.id === 'ce_open_interest' || column.id === 'ce_changein_open_interest' || column.id === 'ce_total_traded_volume' || column.id === 'pe_open_interest' || column.id === 'pe_changein_open_interest' || column.id === 'pe_total_traded_volume') ? value * 50 : (row.ce_not_traded === true && column.show_ce_dash === true) ? '-' : (row.pe_not_traded === true && column.show_pe_dash === true) ? '-' : (row.ce_total_traded_volume === 0 && column.show_ce_not_traded_dash === true) ? '-' : (row.pe_total_traded_volume === 0 && column.show_pe_not_traded_dash === true) ? '-' : (row.ce_open_interest === 0 && column.show_ce_oi_greater_zero === true) ? '-' : (row.pe_open_interest === 0 && column.show_pe_oi_greater_zero === true) ? '-' : column.id == 'ce_oi_bar' ? '' : column.id === 'pe_oi_bar' ? '' : value} */}
+
+                                                        </div>
+                                                        {(column.id === 'ce_oi_bar' || column.id === 'pe_oi_bar') &&
+                                                            <div>
+                                                                <ThemeProvider theme={theme}>
+                                                                    <div style={{ position: 'relative' }}>
+                                                                        <div style={{ position: 'absolute', width: '100%', height: '100%', zIndex: '1' }} > {column.id === 'ce_oi_bar' ? row['ce_open_interest'] : row['pe_open_interest']} </div>
+                                                                        <div style={{ zIndex: '1', opacity: '0.5' }}>
+                                                                            <LinearProgress
+                                                                                color={column.id === 'ce_oi_bar' ? 'color_ce' : 'color_pe'}
+                                                                                sx={{
+                                                                                    'height': 20,
+                                                                                    background: 'transparent',
+                                                                                    transform: column.id === 'ce_oi_bar' && 'rotate(180deg)',
+                                                                                    '& .MuiLinearProgress-bar': {
+                                                                                        transform: 'rotate(180deg)',
+                                                                                    }
+                                                                                }}
+                                                                                variant="determinate"
+                                                                                value={value}
+                                                                            />
+                                                                        </div>
                                                                     </div>
-                                                                </div>
-                                                            </ThemeProvider>
-                                                        </div>}
-                                                </TableCell>)
-                                        })}
-                                    </TableRow>
-                                )
-                            })}
-                    </TableBody>
+                                                                </ThemeProvider>
+                                                            </div>}
+                                                    </TableCell>)
+                                            })}
+                                        </TableRow>
+                                    )
+                                })}
+                        </TableBody> :
+                        <TableBody>
+                            {futureChainTable
+                                .map((row, rowIndex) => {
+                                    return (
+                                        <TableRow hover role="checkbox" tabIndex={-1} key={row.ce_id}
+                                            onMouseEnter={() => {
+                                                setShowActionId(row.ce_id);
+                                            }}
+                                            onMouseLeave={() => setShowActionId(-1)}>
+                                            {columns.map((column) => {
+                                                const value = row[column.id];
+                                                return (
+
+                                                    <TableCell key={column.id} align='center' size='small'
+                                                        style={{ fontSize: 11 }}
+                                                        sx={{
+                                                            padding: "0px 0px",
+                                                            height: '35px',
+                                                        }}>
+                                                        <div className='m-1 rounded'>
+                                                            {/* {value} */}
+                                                            {column.id === 'ce_action' ? (
+                                                                <div >
+                                                                    <Button
+                                                                        variant={isFutureSelected(rowIndex, 'BUY', 'fut', row.expiry_date) ? 'contained' : 'outlined'}
+                                                                        color='success'
+                                                                        style={{ maxWidth: '20px', maxHeight: '20px', minWidth: '20px', minHeight: '20px', marginRight: '1px' }}
+                                                                        onClick={() => handleFutureButtonClick(row.id, rowIndex, 'BUY', 'fut', row.expiry_date, row.last_price, index, futureExpiryDates.map((entry) => entry.exp))}
+                                                                    >
+                                                                        B
+                                                                    </Button>
+                                                                    <Button
+                                                                        variant={isFutureSelected(rowIndex, 'SELL', 'fut', row.expiry_date) ? 'contained' : 'outlined'}
+                                                                        color='error'
+                                                                        style={{ maxWidth: '20px', maxHeight: '20px', minWidth: '20px', minHeight: '20px' }}
+                                                                        onClick={() => handleFutureButtonClick(row.id, rowIndex, 'SELL', 'fut', row.expiry_date, row.last_price, index, futureExpiryDates.map((entry) => entry.exp))}
+                                                                    >
+                                                                        S
+                                                                    </Button>
+                                                                    {isFutureSelected(rowIndex, 'BUY', 'fut', row.expiry_date) || isFutureSelected(rowIndex, 'SELL', 'fut', row.expiry_date) ? (
+                                                                        <div className='mt-2 mb-2'>
+                                                                            <strong>Lot: &nbsp;</strong>
+                                                                            <Select
+                                                                                sx={{ fontSize: '10px' }}
+                                                                                value={
+                                                                                    futureSelectedOptions.find((selectedOption) => selectedOption.index === rowIndex && selectedOption.expiry === row.expiry_date)
+                                                                                        ?.lot || 1
+                                                                                }
+                                                                                style={{ maxWidth: '70px', maxHeight: '20px', minWidth: '70px', minHeight: '20px' }}
+                                                                                onChange={(e) => handleFutureNumberChange(rowIndex, e.target.value, 'fut', row.expiry_date)}
+                                                                            >
+                                                                                {Array.from({ length: 150 }, (_, index) => index + 1).map((number) => (
+                                                                                    <MenuItem key={number} value={number} sx={{ fontSize: '10px' }}>
+                                                                                        {number}
+                                                                                    </MenuItem>
+                                                                                ))}
+                                                                            </Select>
+                                                                        </div>
+                                                                    ) : null}
+                                                                </div>) : value}
+                                                        </div>
+                                                    </TableCell>)
+                                            })}
+                                        </TableRow>
+                                    )
+                                })}
+                        </TableBody>}
                 </Table>
             </TableContainer>
 

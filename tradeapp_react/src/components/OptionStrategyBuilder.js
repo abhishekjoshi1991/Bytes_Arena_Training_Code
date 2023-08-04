@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import FormHelperText from '@mui/material/FormHelperText';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
@@ -8,44 +8,39 @@ import OptionStrategyBuilderOptionChainModal from './OptionStrategyBuilderOption
 
 
 export default function OptionStrategyBuilder() {
-    const [index, setIndex] = useState('NIFTY');
-    const [optionExpiry, setOptionExpiry] = useState('');
-    const [optionsExpiryDates, setOptionsExpiryDates] = useState([]);
-    const [futureExpiryDates, setFutureExpiryDates] = useState([]);
-    const [optionChainTable, setOptionChainTable] = useState([]);
-    const [futureChainTable, setFutureChainTable] = useState([]);
+    const [selectedOptions, setSelectedOptions] = useState([]);
 
 
     async function api_call() {
         const request_expiry = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/get_option_future_expiry')
 
-        const result_expiry = await request_expiry.json()
-        if (result_expiry) {
-            console.log(result_expiry)
-            setOptionsExpiryDates(result_expiry['options_exp'])
-            setFutureExpiryDates(result_expiry['future_exp'])
-            setOptionExpiry(result_expiry['options_exp'][0]['exp'])
+        // const result_expiry = await request_expiry.json()
+        // if (result_expiry) {
+        //     console.log(result_expiry)
+        //     setOptionsExpiryDates(result_expiry['options_exp'])
+        //     setFutureExpiryDates(result_expiry['future_exp'])
+        //     setOptionExpiry(result_expiry['options_exp'][0]['exp'])
 
-            const prepared_data = {
-                'symbol': index,
-                'expiry': result_expiry['options_exp'][0]['exp']
-            }
+        //     const prepared_data = {
+        //         'symbol': index,
+        //         'expiry': result_expiry['options_exp'][0]['exp']
+        //     }
 
-            const request_option_chain_table = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/get_option_chain', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(prepared_data)
-            })
+        //     const request_option_chain_table = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/get_option_chain', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json'
+        //         },
+        //         body: JSON.stringify(prepared_data)
+        //     })
 
-            const response_option_chain_table = await request_option_chain_table.json()
-            if (response_option_chain_table) {
-                console.log(response_option_chain_table)
-                setOptionChainTable(response_option_chain_table)
-                setFutureChainTable([])
-            }
-        }
+        //     const response_option_chain_table = await request_option_chain_table.json()
+        //     if (response_option_chain_table) {
+        //         console.log(response_option_chain_table)
+        //         setOptionChainTable(response_option_chain_table)
+        //         setFutureChainTable([])
+        //     }
+        // }
     }
 
     //     const req_lot = await fetch('http://127.0.0.1:7010/tradeapp/api/v1/option_chain/get_lot')
@@ -103,36 +98,52 @@ export default function OptionStrategyBuilder() {
     //         }
     //     }
     // }
-    const handleExpiry = (e) => {
-        console.log(e.target.value)
-        setOptionExpiry(e.target.value)
-    }
+
+    // async function getDrawerValues(data){
+    //     setSelectedOptions(data)
+    // }
+
+    const getDrawerValues = useCallback((data) => {
+        // Update the parent state when the child state changes
+        setSelectedOptions(data);
+      })
+
+
+
+    // async function getUpdatedTableValues(data){
+    //     setSelectedOptions(data)
+    // }
+
+    const getUpdatedTableValues = useCallback((data) => {
+        // Update the parent state when the child state changes
+        setSelectedOptions(data);
+      }, [])
+
 
     // useEffect(() => {
     //     api_call()
     // }, [])
 
+    console.log('parent', selectedOptions)
 
     return (
         <div className='container-fluid'>
-            <div  className='row'>  {/* borderBottom: '1px solid #d6d6d4'  */}
+            <div  className='row'>
                 <h4>Option Strategy Builder</h4>
-                
             </div>
-
             <div className='row'>
-                <div className='col-sm-5'>
+                <div className='col-sm-6'>
                     <div className='row'>
                         <div className='col-sm-10'></div>
                         <div className='col-sm-2'>
-                            <OptionStrategyBuilderOptionChainModal optionChain={optionChainTable} futureChain={futureChainTable}/>
+                            <OptionStrategyBuilderOptionChainModal selectedOptions={selectedOptions} handleDrawerCallback={getDrawerValues}/>
                         </div>
                     </div>
                 </div>
             </div>
             <div className='row'>
-                <div className='col-sm-5' style={{ height: '500px' }}>
-                    <OptionStrategyBuilderTableTab />
+                <div className='col-sm-6' style={{ height: '500px' }}>
+                    <OptionStrategyBuilderTableTab selectedOptions={selectedOptions} handleTableCallback={getUpdatedTableValues}/>
                 </div>
             </div>
         </div>
