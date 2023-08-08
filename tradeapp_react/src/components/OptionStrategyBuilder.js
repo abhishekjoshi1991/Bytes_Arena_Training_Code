@@ -8,7 +8,8 @@ import OptionStrategyBuilderOptionChainModal from './OptionStrategyBuilderOption
 
 
 export default function OptionStrategyBuilder() {
-    const [selectedOptions, setSelectedOptions] = useState([]);
+    const [selectedOptionsModal, setSelectedOptionsModal] = useState([]);
+    const [selectedOptionsTable, setSelectedOptionsTable] = useState([]);
 
 
     async function api_call() {
@@ -105,7 +106,7 @@ export default function OptionStrategyBuilder() {
 
     const getDrawerValues = useCallback((data) => {
         // Update the parent state when the child state changes
-        setSelectedOptions(data);
+        setSelectedOptionsTable(data);
       })
 
 
@@ -116,7 +117,8 @@ export default function OptionStrategyBuilder() {
 
     const getUpdatedTableValues = useCallback((data) => {
         // Update the parent state when the child state changes
-        setSelectedOptions(data);
+        console.log('parent',data)
+        setSelectedOptionsModal(data);
       }, [])
 
 
@@ -124,7 +126,6 @@ export default function OptionStrategyBuilder() {
     //     api_call()
     // }, [])
 
-    console.log('parent', selectedOptions)
 
     return (
         <div className='container-fluid'>
@@ -136,14 +137,14 @@ export default function OptionStrategyBuilder() {
                     <div className='row'>
                         <div className='col-sm-10'></div>
                         <div className='col-sm-2'>
-                            <OptionStrategyBuilderOptionChainModal selectedOptions={selectedOptions} handleDrawerCallback={getDrawerValues}/>
+                            <OptionStrategyBuilderOptionChainModal selectedOptionsModal={selectedOptionsModal} handleDrawerCallback={getDrawerValues}/>
                         </div>
                     </div>
                 </div>
             </div>
             <div className='row'>
                 <div className='col-sm-6' style={{ height: '500px' }}>
-                    <OptionStrategyBuilderTableTab selectedOptions={selectedOptions} handleTableCallback={getUpdatedTableValues}/>
+                    <OptionStrategyBuilderTableTab selectedOptionsTable={selectedOptionsTable} handleTableCallback={getUpdatedTableValues}/>
                 </div>
             </div>
         </div>
