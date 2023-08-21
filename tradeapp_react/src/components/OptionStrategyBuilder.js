@@ -10,6 +10,7 @@ import OptionStrategyBuilderOptionChainModal from './OptionStrategyBuilderOption
 export default function OptionStrategyBuilder() {
     const [selectedOptionsModal, setSelectedOptionsModal] = useState([]);
     const [selectedOptionsTable, setSelectedOptionsTable] = useState([]);
+    const [parentMasterData, setParentMasterData] = useState({});
 
 
     async function api_call() {
@@ -109,6 +110,11 @@ export default function OptionStrategyBuilder() {
         setSelectedOptionsTable(data);
       })
 
+      const getMasterData = useCallback((data) => {
+        // Update the parent state when the child state changes
+        setParentMasterData(data);
+      })
+
 
 
     // async function getUpdatedTableValues(data){
@@ -137,14 +143,14 @@ export default function OptionStrategyBuilder() {
                     <div className='row'>
                         <div className='col-sm-10'></div>
                         <div className='col-sm-2'>
-                            <OptionStrategyBuilderOptionChainModal selectedOptionsModal={selectedOptionsModal} handleDrawerCallback={getDrawerValues}/>
+                            <OptionStrategyBuilderOptionChainModal selectedOptionsModal={selectedOptionsModal} handleDrawerCallback={getDrawerValues} handleMasterDataCallback={getMasterData}/>
                         </div>
                     </div>
                 </div>
             </div>
             <div className='row'>
                 <div className='col-sm-6' style={{ height: '500px' }}>
-                    <OptionStrategyBuilderTableTab selectedOptionsTable={selectedOptionsTable} handleTableCallback={getUpdatedTableValues}/>
+                    <OptionStrategyBuilderTableTab selectedOptionsTable={selectedOptionsTable} handleTableCallback={getUpdatedTableValues} parentMasterData={parentMasterData}/>
                 </div>
             </div>
         </div>
